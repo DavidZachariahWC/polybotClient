@@ -1,0 +1,110 @@
+Subject: Re: Questions about useChat and API route integration
+
+Hi implementation engineer,
+
+Thanks for sharing the route.ts code. I see what you're trying to do, and I can guide you on how to properly integrate it with useChat.
+
+To answer your questions directly:
+
+Response Format for useChat: Yes, the response from your API route needs to adhere to the stream protocol (either text or data). Because your backend doesn't currently support streaming, use the text stream protocol, which expects plain text chunks.
+useChat Configuration for Non-Streaming: Yes, you'll need to specify streamProtocol: 'text' in the useChat options. Using plain text chunks for the response is important as it does not support tool/function calling. This simplifies the response parsing and rendering to avoid errors.
+API Route Handling: Yes, there are specific ways to handle the response in your API route for compatibility with the latest SDK. Currently, you're returning a JSON object with id, role, and content. Instead, return a StreamingTextResponse from ai with a readable stream. useChat can then directly handle this type and stream the response in the UI.
+Vercel AI SDK Utilities: Yes, you should use the StreamingTextResponse utility from the AI SDK. It simplifies the process of creating a streaming text response. You can pass it a readable stream. In your case, you would convert the text response from your backend into a readable stream.
+Here's how you should modify your code:
+
+import { NextResponse } from 'next/server';
+import { StreamingTextResponse } from 'ai';
+import { OpenAI } from 'openai'
+import {OpenAIStream } from 'ai'
+
+
+
+export async function POST(req: Request) {
+  const { messages } = await req.json()
+  const lastMessage = messages[messages.length - 1]
+
+  try {
+    const requestBody = {
+      query: {
+        text: lastMessage.content
+      }
+    }
+    console.log('Sending to backend:', requestBody)
+
+    const response = await fetch('http://localhost:8000/api/ask', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
+    })
+
+    if (!response.ok) {
+      const errorData = await response.text()
+      console.error('Backend error:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: errorData
+      })
+      throw new Error(`Failed to fetch response: ${response.status} ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    console.log('Received from backend:', data)
+
+    if (!data || !data.text) {
+      throw new Error('Invalid response format from backend')
+    }
+
+
+
+    // Convert the response into a ReadableStream:
+    // https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/ReadableStream
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(data.text);
+        controller.close();
+      },
+    });
+
+    
+    return new StreamingTextResponse(stream)
+  } catch (error) {
+    // Create a readable stream with the error message
+    // to be handled by useChat
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue("I apologize, but I'm having trouble processing your request at the moment. Please try again.");
+        controller.close();
+      }
+    })
+
+    console.error('Error details:', error)
+    return new StreamingTextResponse(stream, { status: 500 })
+  }
+}
+Use code with caution.
+Typescript filename="app/api/ask/route.ts"
+// ... other imports
+
+export default function Chat() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: '/api/ask', // Your backend API endpoint
+    streamProtocol: 'text', // Important: specify text stream protocol
+    keepLastMessageOnError: true, // Ensure UI consistency on errors
+  });
+
+  // ... rest of the component code
+}
+Use code with caution.
+Tsx filename="app/page.tsx"
+Key Changes:
+
+StreamingTextResponse: The StreamingTextResponse object is now used to send the response to the client. This sets the correct Content-Type header for streaming and provides helper methods for handling different stream types, in this case plain text.
+ReadableStream: A ReadableStream is created from your backend's text response (data.text). This stream is then passed to StreamingTextResponse. This enables useChat to consume the data as a stream.
+streamProtocol: 'text': This option in useChat tells the hook to expect a plain text stream.
+Error Handling: The error message is now included in the readable stream wrapped by StreamingTextResponse, allowing useChat to correctly handle the error.
+With these changes, useChat will correctly handle both the successful and error responses from your backend API. The key is using StreamingTextResponse with a readable stream and setting streamProtocol: 'text' in useChat. Let me know if you have any more questions.
+
+Best,
+vercel AI sdk engineer

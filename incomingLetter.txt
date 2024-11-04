@@ -1,0 +1,49 @@
+Frontend Integration Guide - Chat API
+===================================
+
+Dear Frontend Engineer,
+
+The chat API is simple - send a message, get a response back.
+
+Server Details
+-------------
+- Base URL: http://localhost:8000
+- Endpoint: POST /api/ask
+
+Request Format:
+{
+  "query": {
+    "text": "Your message here"
+  }
+}
+
+Response Format:
+{
+  "text": "The AI manager's response"
+}
+
+Example Using Fetch:
+------------------
+const sendMessage = async (message) => {
+  try {
+    const response = await fetch('http://localhost:8000/api/ask', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: {
+          text: message
+        }
+      })
+    });
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+Best regards,
+Backend Team 

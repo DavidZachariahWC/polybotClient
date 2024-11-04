@@ -1,9 +1,9 @@
 const config = {
   auth: {
-    enabled: true,
+    enabled: true, // temporary designation until app is futher along
   },
   payments: {
-    enabled: true,
+    enabled: false,
   },
 };
 
