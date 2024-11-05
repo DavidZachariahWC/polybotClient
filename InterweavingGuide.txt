@@ -1,0 +1,95 @@
+Frontend Engineer Guide: Implementing Conversation Threading
+
+Overview
+Your task is to modify the frontend of the chat application to support persistent conversation threading. This involves managing conversation IDs, updating the user interface to display threaded conversations, and ensuring that messages are sent and received with the appropriate context.
+
+Steps to Follow
+1. Conversation Initialization
+Objective: Start new conversations and manage conversation IDs.
+
+Create New Conversation:
+When the user initiates a new conversation (e.g., by clicking a "New Chat" button), send a request to the backend to create a new conversation.
+API Endpoint: POST /api/conversations
+Request Payload: Optionally include a conversation title or any initial data.
+Response:
+The backend will return a conversationId.
+Store Conversation ID:
+Save the conversationId in the frontend state (e.g., in React state or Redux store).
+Existing Conversations:
+When a user selects an existing conversation from a list, retrieve and set the conversationId in the state.
+2. Message Sending
+Objective: Include the conversationId with every message sent to the backend.
+
+Update Message Payload:
+Modify the message-sending function to include the conversationId in the request payload.
+Request Payload Example:
+json
+Copy code
+{
+  "conversationId": "uuid-of-conversation",
+  "message": "User's message"
+}
+API Endpoint:
+Use the existing chat endpoint, e.g., POST /api/chat.
+3. State Management
+Objective: Manage the state of conversations and messages.
+
+Conversation State:
+Maintain a state variable for the conversationId.
+Update this state when a new conversation is created or an existing one is selected.
+Messages State:
+Keep an array of messages for each conversation.
+Structure:
+javascript
+Copy code
+{
+  conversationId1: [{ sender, content, timestamp }, ...],
+  conversationId2: [{ sender, content, timestamp }, ...],
+  // ...
+}
+Update Messages:
+After sending a message, append it to the messages array of the current conversation.
+When receiving the AI response, also append it to the same array.
+4. User Interface Updates
+Objective: Display threaded conversations and manage UI components.
+
+Conversation List: 
+Create a sidebar or menu that lists all existing conversations.
+Display conversation titles or excerpts of the last message.
+Allow users to select a conversation to load its messages.
+Chat Window:
+Display messages from the selected conversation.
+Ensure messages are displayed in chronological order.
+New Conversation Button:
+Add a button to start a new conversation.
+On click, trigger the creation of a new conversation and update the state accordingly.
+Loading Indicators:
+Show a spinner or loading indicator when waiting for the AI response.
+Error Handling:
+Display user-friendly error messages if something goes wrong (e.g., network errors).
+5. Fetching Conversation History
+Objective: Load existing messages when a conversation is selected.
+
+API Call:
+When a user selects a conversation, fetch its message history from the backend.
+API Endpoint: GET /api/conversations/{conversationId}/messages
+Response: An array of messages associated with the conversation.
+Update Messages State:
+Populate the messages array for the selected conversation with the fetched messages.
+6. Authentication Handling
+Objective: Ensure that all requests are authenticated.
+
+Clerk Integration:
+Continue using Clerk for authentication.
+Make sure that authenticated requests include necessary tokens or headers.
+7. Optimizations and Best Practices
+Objective: Enhance performance and maintainability.
+
+Pagination or Infinite Scroll:
+For long conversations, implement pagination or infinite scrolling to load messages in chunks.
+Debounce User Input:
+If implementing features like message drafts, debounce user input to prevent unnecessary re-renders.
+Input Validation:
+Validate user input before sending it to the backend to prevent issues with empty messages.
+Accessibility:
+Ensure the UI is accessible, with proper ARIA labels and keyboard navigation support.

@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { supabase } from '@/lib/supabase/index'
-//
+
 export async function POST(req: Request) {
   try {
     const { userId } = await auth()
@@ -10,6 +10,7 @@ export async function POST(req: Request) {
 
     const { messages, conversationId } = await req.json()
     const lastMessage = messages[messages.length - 1]
+    let activeConversationId = conversationId // Track the active conversation ID
 
     // Make the API call to the backend server first
     try {
@@ -34,66 +35,73 @@ export async function POST(req: Request) {
       // Only try database operations after we have a successful response
       try {
         // If no conversation exists, create one
-        let currentConversationId = conversationId
-        if (!currentConversationId) {
-          const { data: newConversation } = await supabase
+        if (!activeConversationId) {
+          const { data: newConversation, error: convError } = await supabase
             .from('conversations')
             .insert([
               {
                 user_id: userId,
-                title: lastMessage.content.slice(0, 50) + '...'
+                title: lastMessage.content.slice(0, 50) + '...',
+                updated_at: new Date().toISOString()
               }
             ])
             .select('id')
             .single()
 
+          if (convError) throw convError
           if (newConversation) {
-            currentConversationId = newConversation.id
+            activeConversationId = newConversation.id
           }
+        } else {
+          // Update conversation's updated_at timestamp
+          await supabase
+            .from('conversations')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', activeConversationId)
         }
 
-        // Store messages in database (don't await these)
-        if (currentConversationId) {
-          Promise.resolve(
-            supabase
-              .from('messages')
-              .insert([
-                {
-                  conversation_id: currentConversationId,
-                  content: lastMessage.content,
-                  sender: 'USER'
-                },
-                {
-                  conversation_id: currentConversationId,
-                  content: data.text,
-                  sender: 'BOT'
-                }
-              ])
-          )
-            .then(() => console.log('Messages stored'))
-            .catch((err: Error) => console.error('Failed to store messages:', err))
+        // Store messages in database
+        if (activeConversationId) {
+          const { error: msgError } = await supabase
+            .from('messages')
+            .insert([
+              {
+                conversation_id: activeConversationId,
+                content: lastMessage.content,
+                sender: 'USER',
+                created_at: new Date().toISOString()
+              },
+              {
+                conversation_id: activeConversationId,
+                content: data.text,
+                sender: 'BOT',
+                created_at: new Date().toISOString()
+              }
+            ])
+
+          if (msgError) throw msgError
         }
       } catch (dbError) {
-        // Log database errors but don't fail the request
         console.error('Database error:', dbError)
       }
 
-      // Return the bot response regardless of database success
+      // Return the bot response with conversation ID
       return new Response(JSON.stringify({ 
         role: 'assistant',
         content: data.text,
-        id: crypto.randomUUID()
+        id: crypto.randomUUID(),
+        conversationId: activeConversationId // Use the tracked conversation ID
       }), {
         headers: { 'Content-Type': 'application/json' }
       })
 
     } catch (backendError) {
       console.error('Backend server error:', backendError)
-      // Return a fallback response if backend is not available
       return new Response(JSON.stringify({ 
         role: 'assistant',
         content: "I'm sorry, I'm having trouble connecting to my backend server. Please try again later.",
-        id: crypto.randomUUID()
+        id: crypto.randomUUID(),
+        conversationId: activeConversationId // Include the conversation ID even in error case
       }), {
         headers: { 'Content-Type': 'application/json' }
       })
