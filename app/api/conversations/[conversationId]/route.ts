@@ -1,21 +1,9 @@
-// app/api/conversations/[conversationId]/route.ts
-
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-
-// Define the type for the context parameter
-interface RouteContext {
-  params: {
-    conversationId: string
-  }
+// Placeholder file for future conversation endpoint implementation
+export async function GET() {
+  return new Response('Not implemented', { status: 501 });
 }
 
-// Minimal GET handler
-export async function GET(request: NextRequest, context: RouteContext) {
-  return NextResponse.json({ message: 'Placeholder GET handler placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder' })
+export async function POST() {
+  return new Response('Not implemented', { status: 501 });
 }
 
-// Minimal POST handler (optional)
-export async function POST(request: NextRequest, context: RouteContext) {
-  return NextResponse.json({ message: 'Placeholder POST handler placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder' })
-}
