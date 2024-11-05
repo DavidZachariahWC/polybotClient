@@ -5,11 +5,23 @@ import { NextResponse } from 'next/server';
 export async function GET(
   request: Request,
   { params }: { params: { conversationId: string } }
-) {
+): Promise<NextResponse> {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return new Response('Unauthorized', { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // First verify the conversation belongs to the user
+    const { data: conversation, error: convError } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('id', params.conversationId)
+      .eq('user_id', userId)
+      .single();
+
+    if (convError || !conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
     const { data: messages, error } = await supabase
@@ -30,7 +42,10 @@ export async function GET(
   }
 }
 
-export async function POST() {
-  return new Response('Not implemented', { status: 501 });
+export async function POST(
+  request: Request,
+  { params }: { params: { conversationId: string } }
+): Promise<NextResponse> {
+  return NextResponse.json({ error: 'Not implemented' }, { status: 501 });
 }
 
