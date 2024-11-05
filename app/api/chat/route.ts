@@ -3,10 +3,13 @@ import { supabase } from '@/lib/supabase/index'
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth()
+    const { userId, getToken } = await auth()
     if (!userId) {
       return new Response('Unauthorized', { status: 401 })
     }
+
+    // Get the session token
+    const token = await getToken()
 
     const { messages, conversationId } = await req.json()
     const lastMessage = messages[messages.length - 1]
@@ -23,11 +26,13 @@ export async function POST(req: Request) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           query: {
             text: lastMessage.content
-          }
+          },
+          conversation_id: activeConversationId || undefined
         })
       })
 
@@ -37,9 +42,8 @@ export async function POST(req: Request) {
 
       const data = await response.json()
 
-      // Only try database operations after we have a successful response
+      // Rest of the code remains the same...
       try {
-        // If no conversation exists, create one
         if (!activeConversationId) {
           const { data: newConversation, error: convError } = await supabase
             .from('conversations')
@@ -58,14 +62,12 @@ export async function POST(req: Request) {
             activeConversationId = newConversation.id
           }
         } else {
-          // Update conversation's updated_at timestamp
           await supabase
             .from('conversations')
             .update({ updated_at: new Date().toISOString() })
             .eq('id', activeConversationId)
         }
 
-        // Store messages in database
         if (activeConversationId) {
           const { error: msgError } = await supabase
             .from('messages')
@@ -90,7 +92,6 @@ export async function POST(req: Request) {
         console.error('Database error:', dbError)
       }
 
-      // Return the bot response with conversation ID
       return new Response(JSON.stringify({ 
         role: 'assistant',
         content: data.text,
