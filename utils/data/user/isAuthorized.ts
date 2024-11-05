@@ -1,8 +1,7 @@
 "server only";
 
 import { clerkClient } from "@clerk/nextjs/server";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { supabase } from "@/lib/supabase/index";
 import config from "@/tailwind.config";
 
 export const isAuthorized = async (
@@ -23,20 +22,6 @@ export const isAuthorized = async (
       message: "User not found",
     };
   }
-
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
 
   try {
     const { data, error } = await supabase

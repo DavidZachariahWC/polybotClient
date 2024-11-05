@@ -1,0 +1,22 @@
+The officialPolyBot folder contains the front end built with a next.js starterkit. This front end also uses Vercel AI SDK 
+for front end chatbot prebuilt components. The latest versions of the vercel ai sdk were released after your training cutoff so 
+you do not have access to up to date knowledge. So, when using the vercel ai sdk, you will need to use the ai sdk code examples that already
+exist in the project rather than your own knowledge. However, we have access to a vercel ai sdk expert engineer who you should 
+direct all clarifications and questions to in order to build the best possible project.
+
+The PolyBot folder contains the back end built with python and fastapi among other libraries. The backend handles all AI logic 
+and orchestration, including:
+- A manager AI chatbot that acts as the primary interface for users
+- Multiple worker AI instances that specialize in different tasks
+- Logic for routing user queries through the manager to appropriate worker bots
+- Response aggregation and filtering before sending back to the frontend
+
+The architecture is designed so that:
+1. Users interact only with a single interface (the manager bot)
+2. The manager bot intelligently delegates tasks to specialized worker bots
+3. All AI processing happens in the Python backend
+4. The Vercel AI SDK is used purely for frontend UI components
+5. Streaming is simulated by the frontend once complete responses are received from the backend
+
+This separation of concerns keeps the frontend focused on user experience while the backend handles the complex AI orchestration.
+

@@ -1,7 +1,6 @@
 "server only"
 
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { supabase } from "@/lib/supabase/index";
 import { userCreateProps } from "@/utils/types";
 
 export const userCreate = async ({
@@ -11,20 +10,6 @@ export const userCreate = async ({
   profile_image_url,
   user_id,
 }: userCreateProps) => {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
-
   try {
     const { data, error } = await supabase
       .from("user")
@@ -38,9 +23,6 @@ export const userCreate = async ({
         },
       ])
       .select();
-
-    console.log("data", data);
-    console.log("error", error);
 
     if (error?.code) return error;
     return data;

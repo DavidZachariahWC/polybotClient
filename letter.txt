@@ -1,0 +1,105 @@
+Subject: Building the Chat Interface with Vercel AI SDK UI Components
+
+Hi Implementation Engineer,
+
+This outlines how to build the frontend chat interface using the Vercel AI SDK UI components, specifically the useChat hook. We'll focus solely on the client-side for now, leaving the backend integration and AI manager logic for a later stage.
+
+1. Installation:
+
+Make sure you have the ai package and the @ai-sdk/react package installed:
+
+pnpm add ai @ai-sdk/react
+Use code with caution.
+Bash
+2. Basic Chat Interface with useChat:
+
+Here's the basic structure for a chat component using the useChat hook:
+
+'use client'; // Required for client components in Next.js App Router
+
+import { useChat } from 'ai/react';
+
+export default function Chat() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: '/api/ask', // Your backend API endpoint
+    keepLastMessageOnError: true, // Ensure UI consistency on errors
+  });
+
+  return (
+    <div>
+      {/* Display chat messages */}
+      {messages.map(m => (
+        <div key={m.id}>
+          <p>
+            <strong>{m.role}:</strong> {m.content}
+          </p>
+          {/* Render any UI elements returned by tools */}
+            {m.toolInvocations?.map((toolInvocation) => {
+              if(toolInvocation.toolName ==="yourToolName"){
+                return <YourUIComponent key={toolInvocation.toolCallId} {...toolInvocation.result}  /> 
+              }
+            })}
+        </div>
+      ))}
+
+      {/* Input form */}
+      <form onSubmit={handleSubmit}>
+        <input
+          value={input}
+          onChange={handleInputChange}
+          placeholder="Type your message..."
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  );
+}
+Use code with caution.
+Tsx filename="app/page.tsx"
+Explanation:
+
+useChat Hook: This hook manages the chat state, handles message sending and receiving, and provides several helper functions.
+messages: An array of Message objects, representing the chat history. Each Message has a role ("user" or "assistant") and content. Use m.toolInvocations to access any function/tool calls made by the assistant.
+input: The current text entered by the user.
+handleInputChange: An event handler for the input field's onChange event. This automatically updates the input state in the hook.
+handleSubmit: An event handler for the form's onSubmit event. It appends the user's message to the chat and clears the input field.
+3. Backend API Endpoint (/api/ask):
+
+The api prop in useChat points to your backend endpoint. You'll implement this endpoint separately to handle communication with the AI manager and model querying. For now, you can create a placeholder endpoint:
+
+import { NextResponse } from 'next/server';
+import { StreamingTextResponse, streamText } from 'ai';
+import { OpenAI } from 'openai'
+
+
+
+export async function POST(req: Request) {
+    const { messages } = await req.json()
+
+// do something with these messages e.g. manager duties.
+    const stream = OpenAIStream(
+      await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        stream: true,
+        messages
+      })
+    )
+
+    return new StreamingTextResponse(stream);
+}
+Use code with caution.
+Typescript filename="app/api/ask/route.ts"
+4. Advanced useChat Features (Optional):
+
+isLoading: A boolean indicating if a request is in progress (for loading indicators).
+error: Stores any errors encountered during the API call.
+stop(): A function to abort the current request.
+reload(): A function to regenerate the last AI response.
+append(message, options): Can be used for more granular control over message sending and appending, supports additional data, headers, and body.
+setData(data): updates the chat data object which is used to store additional data returned by StreamData.
+These can be used to enhance the chat interface with loading states, error handling, and other interactive features. You can refer to the useChat documentation for more details and examples.
+
+This setup provides a solid foundation for building your chat interface. Focus on implementing this structure first, and we can address backend integration and AI manager interaction in the next steps.
+
+Best,
+Vercel AI SDK Expert Engineer

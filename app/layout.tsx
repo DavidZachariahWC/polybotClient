@@ -1,11 +1,11 @@
 import Provider from '@/app/provider'
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
-import AuthWrapper from '@/components/wrapper/auth-wrapper'
 import { Analytics } from "@vercel/analytics/react"
 import { GeistSans } from 'geist/font/sans'
 import type { Metadata } from 'next'
 import './globals.css'
+import { ClerkProvider } from '@clerk/nextjs'
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://starter.rasmic.xyz"),
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <AuthWrapper>
+    <ClerkProvider dynamic>
       <html lang="en" suppressHydrationWarning>
         <head>
           <link
@@ -65,6 +65,6 @@ export default function RootLayout({
           <Analytics />
         </body>
       </html>
-    </AuthWrapper>
+    </ClerkProvider>
   )
 }

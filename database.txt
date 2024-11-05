@@ -1,0 +1,33 @@
+below is the structure of the supabase database.
+
+-- Enable the pgcrypto extension for UUID generation
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Users Table
+CREATE TABLE users (
+    id text PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Conversations Table
+CREATE TABLE conversations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id text NOT NULL REFERENCES users(id),
+    title text,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index to improve query performance on user_id
+CREATE INDEX idx_conversations_user_id ON conversations(user_id);
+
+-- Messages Table
+CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    sender VARCHAR(10) NOT NULL CHECK (sender IN ('USER', 'BOT')),
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index to improve query performance on conversation_id
+CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
