@@ -6,6 +6,7 @@ import { GeistSans } from 'geist/font/sans'
 import type { Metadata } from 'next'
 import './globals.css'
 import { ClerkProvider } from '@clerk/nextjs'
+import { AuthWrapper } from '@/components/auth/auth-wrapper'
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://starter.rasmic.xyz"),
@@ -58,8 +59,10 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              {children}
-              <Toaster />
+              <AuthWrapper>
+                {children}
+                <Toaster />
+              </AuthWrapper>
             </ThemeProvider>
           </Provider>
           <Analytics />
