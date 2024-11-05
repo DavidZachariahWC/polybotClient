@@ -2,15 +2,9 @@ import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
 import { NextRequest, NextResponse } from 'next/server';
 
-type RouteContext = {
-  params: {
-    conversationId: string;
-  };
-};
-
 export async function GET(
   req: NextRequest,
-  context: RouteContext
+  { params }: { params: Record<string, string | string[]> }
 ): Promise<NextResponse> {
   try {
     const { userId } = await auth();
@@ -18,11 +12,13 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const conversationId = params.conversationId as string;
+
     // First verify the conversation belongs to the user
     const { data: conversation, error: convError } = await supabase
       .from('conversations')
       .select('id')
-      .eq('id', context.params.conversationId)
+      .eq('id', conversationId)
       .eq('user_id', userId)
       .single();
 
@@ -33,7 +29,7 @@ export async function GET(
     const { data: messages, error } = await supabase
       .from('messages')
       .select('*')
-      .eq('conversation_id', context.params.conversationId)
+      .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -50,7 +46,7 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  context: RouteContext
+  { params }: { params: Record<string, string | string[]> }
 ): Promise<NextResponse> {
   return NextResponse.json({ error: 'Not implemented' }, { status: 501 });
 }
