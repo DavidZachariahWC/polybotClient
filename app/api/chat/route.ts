@@ -10,11 +10,16 @@ export async function POST(req: Request) {
 
     const { messages, conversationId } = await req.json()
     const lastMessage = messages[messages.length - 1]
-    let activeConversationId = conversationId // Track the active conversation ID
+    let activeConversationId = conversationId
 
     // Make the API call to the backend server first
     try {
-      const response = await fetch('http://localhost:8000/api/ask', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+      if (!backendUrl) {
+        throw new Error('Backend URL not configured')
+      }
+
+      const response = await fetch(`${backendUrl}/api/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,7 +95,7 @@ export async function POST(req: Request) {
         role: 'assistant',
         content: data.text,
         id: crypto.randomUUID(),
-        conversationId: activeConversationId // Use the tracked conversation ID
+        conversationId: activeConversationId
       }), {
         headers: { 'Content-Type': 'application/json' }
       })
@@ -101,7 +106,7 @@ export async function POST(req: Request) {
         role: 'assistant',
         content: "I'm sorry, I'm having trouble connecting to my backend server. Please try again later.",
         id: crypto.randomUUID(),
-        conversationId: activeConversationId // Include the conversation ID even in error case
+        conversationId: activeConversationId
       }), {
         headers: { 'Content-Type': 'application/json' }
       })
