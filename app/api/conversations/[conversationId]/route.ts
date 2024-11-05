@@ -1,15 +1,21 @@
 // app/api/conversations/[conversationId]/route.ts
 
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-// Placeholder GET handler
-export async function GET(request: Request, { params }: { params: { conversationId: string } }) {
-  return NextResponse.json({ message: `GET request received for conversation ${params.conversationId} placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder` })
+// Define the type for the context parameter
+interface RouteContext {
+  params: {
+    conversationId: string
+  }
 }
 
-// Placeholder POST handler
-export async function POST(request: Request, { params }: { params: { conversationId: string } }) {
-  return NextResponse.json({ message: `POST request received for conversation ${params.conversationId} placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder` })
+// Minimal GET handler
+export async function GET(request: NextRequest, context: RouteContext) {
+  return NextResponse.json({ message: 'Placeholder GET handler placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder' })
 }
 
-// You can add more handlers (PUT, DELETE, etc.) as needed
+// Minimal POST handler (optional)
+export async function POST(request: NextRequest, context: RouteContext) {
+  return NextResponse.json({ message: 'Placeholder POST handler placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder' })
+}
