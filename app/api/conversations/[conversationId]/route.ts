@@ -1,10 +1,16 @@
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+type RouteContext = {
+  params: {
+    conversationId: string;
+  };
+};
 
 export async function GET(
-  request: Request,
-  { params }: { params: { conversationId: string } }
+  req: NextRequest,
+  context: RouteContext
 ): Promise<NextResponse> {
   try {
     const { userId } = await auth();
@@ -16,7 +22,7 @@ export async function GET(
     const { data: conversation, error: convError } = await supabase
       .from('conversations')
       .select('id')
-      .eq('id', params.conversationId)
+      .eq('id', context.params.conversationId)
       .eq('user_id', userId)
       .single();
 
@@ -27,7 +33,7 @@ export async function GET(
     const { data: messages, error } = await supabase
       .from('messages')
       .select('*')
-      .eq('conversation_id', params.conversationId)
+      .eq('conversation_id', context.params.conversationId)
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -43,8 +49,8 @@ export async function GET(
 }
 
 export async function POST(
-  request: Request,
-  { params }: { params: { conversationId: string } }
+  req: NextRequest,
+  context: RouteContext
 ): Promise<NextResponse> {
   return NextResponse.json({ error: 'Not implemented' }, { status: 501 });
 }
