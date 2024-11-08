@@ -1,3 +1,5 @@
+// app/api/chat/route.ts
+
 import { auth } from '@clerk/nextjs/server'
 import { supabase } from '@/lib/supabase/index'
 
@@ -8,14 +10,24 @@ export async function POST(req: Request) {
       return new Response('Unauthorized', { status: 401 })
     }
 
-    // Get the session token
     const token = await getToken()
-
     const { messages, conversationId } = await req.json()
     const lastMessage = messages[messages.length - 1]
     let activeConversationId = conversationId
+    let threadId: string | undefined
 
-    // Make the API call to the backend server first
+    // If we have a conversationId, get the thread_id
+    if (activeConversationId) {
+      const { data: conversation } = await supabase
+        .from('conversations')
+        .select('thread_id')
+        .eq('id', activeConversationId)
+        .single()
+      
+      threadId = conversation?.thread_id
+    }
+
+    // Make the API call to the backend server
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
       if (!backendUrl) {
@@ -32,7 +44,8 @@ export async function POST(req: Request) {
           query: {
             text: lastMessage.content
           },
-          conversation_id: activeConversationId || undefined
+          conversation_id: activeConversationId || undefined,
+          thread_id: threadId || undefined
         })
       })
 
@@ -42,7 +55,6 @@ export async function POST(req: Request) {
 
       const data = await response.json()
 
-      // Rest of the code remains the same...
       try {
         if (!activeConversationId) {
           const { data: newConversation, error: convError } = await supabase
@@ -51,6 +63,7 @@ export async function POST(req: Request) {
               {
                 user_id: userId,
                 title: lastMessage.content.slice(0, 50) + '...',
+                thread_id: data.thread_id,
                 updated_at: new Date().toISOString()
               }
             ])
@@ -61,10 +74,14 @@ export async function POST(req: Request) {
           if (newConversation) {
             activeConversationId = newConversation.id
           }
-        } else {
+        } else if (data.thread_id && !threadId) {
+          // Update thread_id if it's new
           await supabase
             .from('conversations')
-            .update({ updated_at: new Date().toISOString() })
+            .update({ 
+              thread_id: data.thread_id,
+              updated_at: new Date().toISOString() 
+            })
             .eq('id', activeConversationId)
         }
 
@@ -96,7 +113,8 @@ export async function POST(req: Request) {
         role: 'assistant',
         content: data.text,
         id: crypto.randomUUID(),
-        conversationId: activeConversationId
+        conversationId: activeConversationId,
+        threadId: data.thread_id
       }), {
         headers: { 'Content-Type': 'application/json' }
       })

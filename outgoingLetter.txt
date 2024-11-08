@@ -1,0 +1,81 @@
+Conversation Flow Documentation - PolyBot Frontend to Backend
+
+Overview:
+The conversation system in PolyBot follows a structured flow from frontend to backend, utilizing Supabase for data persistence and a separate backend service for AI processing. Here's a detailed breakdown of how data moves through the system:
+
+1. Frontend State Management
+-------------------------
+- The ConversationContext (contexts/ConversationContext.tsx) manages the global state for:
+  * List of conversations
+  * Current active conversation
+  * Messages within the current conversation
+  * Methods for creating/loading conversations
+
+2. User Interface Flow
+-------------------------
+The main chat interface (dashboard/_components/polybot-interface.tsx) handles:
+- Creating new conversations
+- Displaying conversation history
+- Sending/receiving messages
+- Managing loading states
+
+3. Data Flow for New Messages
+-------------------------
+When a user sends a message:
+
+a. Initial Request:
+   - User input is captured in the PolybotInterface component
+   - handleSendMessage() is triggered on form submission
+   - If no active conversation exists, one is created first
+   - Message is sent to /api/chat endpoint
+
+b. API Processing:
+   - /api/chat route handles the incoming message
+   - Authenticates the user using Clerk
+   - Forwards the message to the AI backend service
+   - Stores messages in Supabase
+   - Returns the AI response
+
+4. Database Interactions
+-------------------------
+Messages and conversations are stored in Supabase with the following structure:
+
+Conversations Table:
+- id
+- user_id
+- title
+- updated_at
+
+Messages Table:
+- id
+- conversation_id
+- content
+- sender (USER/BOT)
+- created_at
+
+5. Authentication Flow
+-------------------------
+- Clerk handles user authentication
+- Auth state is verified on all API routes
+- Supabase operations are protected by user_id checks
+
+6. API Endpoints
+-------------------------
+Key endpoints:
+- /api/conversations: Manages conversation CRUD operations
+- /api/conversations/[conversationId]: Handles message retrieval
+- /api/chat: Processes message exchange with AI backend
+
+7. Error Handling
+-------------------------
+- Frontend shows loading states during operations
+- API routes include try-catch blocks with error responses
+- Database operations have error handling and logging
+
+8. Real-time Updates
+-------------------------
+- Messages are fetched after each successful send
+- Conversation list updates automatically
+- UI reflects loading states during operations
+
+This system ensures secure, efficient conversation management while maintaining a smooth user experience. The separation of concerns between frontend state management, API routing, and database operations allows for scalable and maintainable code.
