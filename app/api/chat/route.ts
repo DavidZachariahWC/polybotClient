@@ -34,6 +34,7 @@ export async function POST(req: Request) {
         throw new Error('Backend URL not configured')
       }
 
+      console.log('Making request to backend:', `${backendUrl}/api/ask`)
       const response = await fetch(`${backendUrl}/api/ask`, {
         method: 'POST',
         headers: {
@@ -49,14 +50,30 @@ export async function POST(req: Request) {
         })
       })
 
+      console.log('Backend response status:', response.status)
+      console.log('Backend response headers:', Object.fromEntries(response.headers.entries()))
+
       if (!response.ok) {
         throw new Error(`Backend server error: ${response.statusText}`)
       }
 
-      const data = await response.json()
+      const rawResponse = await response.clone().text()
+      console.log('Raw response body:', rawResponse)
+
+      let data
+      try {
+        data = await response.json()
+        console.log('Parsed response data:', data)
+      } catch (jsonError) {
+        console.error('Failed to parse response as JSON:', rawResponse)
+        console.error('JSON parse error:', jsonError)
+        throw jsonError
+      }
 
       try {
+        console.log('Starting database operations...')
         if (!activeConversationId) {
+          console.log('Creating new conversation...')
           const { data: newConversation, error: convError } = await supabase
             .from('conversations')
             .insert([
@@ -86,6 +103,7 @@ export async function POST(req: Request) {
         }
 
         if (activeConversationId) {
+          console.log('Inserting messages into database...')
           const { error: msgError } = await supabase
             .from('messages')
             .insert([
@@ -105,10 +123,13 @@ export async function POST(req: Request) {
 
           if (msgError) throw msgError
         }
+        console.log('Database operations completed successfully')
       } catch (dbError) {
-        console.error('Database error:', dbError)
+        console.error('Database operation failed:', dbError)
+        throw dbError
       }
 
+      console.log('Sending successful response to client')
       return new Response(JSON.stringify({ 
         role: 'assistant',
         content: data.text,
@@ -120,7 +141,7 @@ export async function POST(req: Request) {
       })
 
     } catch (backendError) {
-      console.error('Backend server error:', backendError)
+      console.error('Backend processing failed:', backendError)
       return new Response(JSON.stringify({ 
         role: 'assistant',
         content: "I'm sorry, I'm having trouble connecting to my backend server. Please try again later.",
