@@ -14,6 +14,14 @@ import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css'; // Using dark theme to match the UI
 
+// Add this interface near the top of the file, after imports
+interface CodeProps extends React.ClassAttributes<HTMLElement>, 
+  React.HTMLAttributes<HTMLElement> {
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+}
+
 export default function PolybotInterface() {
   const {
     conversations,
@@ -123,7 +131,7 @@ export default function PolybotInterface() {
                       remarkPlugins={[remarkGfm]}
                       rehypePlugins={[rehypeHighlight]}
                       components={{
-                        code({ node, inline, className, children, ...props }) {
+                        code({ inline, className, children, ...props }: CodeProps) {
                           return (
                             <code
                               className={`${className} ${
