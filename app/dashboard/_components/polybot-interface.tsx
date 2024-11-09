@@ -1,3 +1,5 @@
+// app/dashboard/_components/polybot-interface.tsx
+
 'use client'
 
 import { useState } from "react"
@@ -7,6 +9,10 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ArrowUp, Clock, Plus, X } from "lucide-react"
 import Link from "next/link"
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import 'highlight.js/styles/github-dark.css'; // Using dark theme to match the UI
 
 export default function PolybotInterface() {
   const {
@@ -103,13 +109,38 @@ export default function PolybotInterface() {
               }`}
             >
               <div
-                className={`inline-block p-2 rounded-lg ${
+                className={`inline-block p-2 rounded-lg max-w-[80%] ${
                   message.sender === 'USER'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted'
                 }`}
               >
-                {message.content}
+                {message.sender === 'USER' ? (
+                  <div className="text-sm">{message.content}</div>
+                ) : (
+                  <div className="markdown-content">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                      components={{
+                        code({ node, inline, className, children, ...props }) {
+                          return (
+                            <code
+                              className={`${className} ${
+                                inline ? 'inline-code' : 'block-code'
+                              }`}
+                              {...props}
+                            >
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
               </div>
             </div>
           ))}
