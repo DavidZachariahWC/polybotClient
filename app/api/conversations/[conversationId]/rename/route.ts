@@ -1,11 +1,18 @@
 //app/api/conversations/[conversationId]/rename/route.ts
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Define the params interface
+interface RouteParams {
+  params: {
+    conversationId: string;
+  };
+}
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: { conversationId: string } }
+  req: NextRequest,
+  { params }: RouteParams
 ): Promise<NextResponse> {
   try {
     const { userId } = await auth();
@@ -14,7 +21,7 @@ export async function PATCH(
     }
 
     const { conversationId } = params;
-    const { title } = await request.json();
+    const { title } = await req.json();
 
     if (!title) {
       return NextResponse.json({ error: 'Missing title' }, { status: 400 });
