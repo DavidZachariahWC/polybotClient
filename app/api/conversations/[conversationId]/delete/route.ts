@@ -1,9 +1,10 @@
+//app/api/conversations/[conversationId]/delete/route.ts
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function DELETE(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { conversationId: string } }
 ): Promise<NextResponse> {
   try {

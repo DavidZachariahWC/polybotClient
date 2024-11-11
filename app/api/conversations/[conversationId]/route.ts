@@ -1,3 +1,4 @@
+//app/api/conversations/[conversationId]/route.ts
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
 import { NextRequest, NextResponse } from 'next/server';
