@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { conversationId: string } }
+  context: { params: { conversationId: string }; searchParams: URLSearchParams }
 ) {
   try {
     const { userId } = await auth();
@@ -53,4 +53,4 @@ export async function DELETE(
     console.error('Error in DELETE conversation:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
