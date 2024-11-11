@@ -1,12 +1,11 @@
 'use client'
 
 import * as React from "react"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useConversation } from '@/contexts/ConversationContext'
 import { Bot, ClipboardCopy, Send } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -30,14 +29,13 @@ export default function PolybotInterface() {
 
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Add scroll effect
-  React.useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
-  }, [messages])
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(scrollToBottom, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +80,7 @@ export default function PolybotInterface() {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-4" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto px-4">
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-muted-foreground">
             Start a conversation...
@@ -146,9 +144,10 @@ export default function PolybotInterface() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {/* Input */}
       <form onSubmit={handleSendMessage} className="p-4 border-t">
