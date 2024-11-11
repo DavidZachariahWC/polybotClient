@@ -111,40 +111,6 @@ export default function PolybotInterface() {
 
       {/* Main content area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-64 bg-zinc-900/50 border-r border-zinc-700 flex flex-col">
-          <div className="p-2">
-            <Button 
-              className="w-full justify-start gap-2 rounded-lg bg-transparent text-white hover:bg-purple-500/20 focus:bg-purple-500/20 focus:ring-2 focus:ring-purple-500/50" 
-              variant="ghost"
-              onClick={handleNewChat}
-            >
-              <Plus size={16} />
-              New Chat
-            </Button>
-          </div>
-          <ScrollArea className="flex-1">
-            <div className="p-2 space-y-2">
-              {conversations.map((conv) => (
-                <Button 
-                  key={conv.id}
-                  className={`w-full justify-start gap-2 rounded-lg text-white hover:bg-purple-500/20 focus:ring-2 focus:ring-purple-500/50 ${
-                    currentConversation?.id === conv.id ? 'bg-purple-500/20' : 'bg-transparent'
-                  }`}
-                  variant="ghost"
-                  onClick={() => {
-                    setCurrentConversation(conv);
-                    loadMessages(conv.id);
-                  }}
-                >
-                  <Bot size={16} />
-                  {conv.title}
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-
         {/* Chat area */}
         <div className="flex-1 flex flex-col bg-zinc-900">
           {/* Chat title */}
