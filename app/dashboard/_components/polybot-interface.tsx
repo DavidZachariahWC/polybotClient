@@ -130,7 +130,7 @@ export default function PolybotInterface() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           {isConversationLoading ? (
             <div className="flex h-full items-center justify-center">
               <div className="typing-indicator">
@@ -255,7 +255,7 @@ export default function PolybotInterface() {
         </div>
       </div>
 
-      <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <form onSubmit={handleSendMessage} className="relative">
           <Textarea
             className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px]"
