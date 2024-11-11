@@ -11,22 +11,37 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import 'highlight.js/styles/github-dark.css'
+import rehypeRaw from 'rehype-raw'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import emoji from 'remark-emoji'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 
-interface CodeProps extends React.ClassAttributes<HTMLElement>, 
-  React.HTMLAttributes<HTMLElement> {
+interface CodeProps {
+  node?: any;
   inline?: boolean;
   className?: string;
   children?: React.ReactNode;
+  [key: string]: any;
+}
+
+interface Message {
+  id: string;
+  sender: 'USER' | 'BOT';
+  content: string;
 }
 
 export default function PolybotInterface() {
   const {
     currentConversation,
-    messages,
+    messages: contextMessages,
     createNewConversation,
     loadMessages
   } = useConversation();
 
+  const [messages, setMessages] = useState<Message[]>(contextMessages);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -36,6 +51,10 @@ export default function PolybotInterface() {
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  useEffect(() => {
+    setMessages(contextMessages);
+  }, [contextMessages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +72,11 @@ export default function PolybotInterface() {
         conversationId = newConversation.id;
       }
 
+      // Immediately add the user's message and a placeholder for the AI's response
+      const newUserMessage: Message = { id: Date.now().toString(), sender: 'USER', content: userMessage };
+      const placeholderBotMessage: Message = { id: (Date.now() + 1).toString(), sender: 'BOT', content: '' };
+      setMessages(prevMessages => [...prevMessages, newUserMessage, placeholderBotMessage]);
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,6 +88,16 @@ export default function PolybotInterface() {
 
       if (!response.ok) throw new Error('Failed to send message');
       
+      const data = await response.json();
+      const botResponse = data.message; // Adjust this based on your API response structure
+
+      // Update the placeholder with the actual bot response
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.id === placeholderBotMessage.id ? { ...msg, content: botResponse } : msg
+        )
+      );
+
       await loadMessages(conversationId);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -77,7 +111,6 @@ export default function PolybotInterface() {
     console.log('Attachment button clicked');
   };
 
-  // Add this new function to handle key down
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -122,34 +155,87 @@ export default function PolybotInterface() {
                     <div className="text-base">
                       {message.sender === 'BOT' ? (
                         message.content ? (
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            rehypePlugins={[rehypeHighlight]}
-                            components={{
-                              code({ inline, className, children, ...props }: CodeProps) {
-                                return (
-                                  <code
-                                    className={`${className} ${
-                                      inline ? 'inline-code' : 'block-code'
-                                    }`}
-                                    {...props}
+                          <div className="chat-message">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              rehypePlugins={[rehypeHighlight]}
+                              className="prose prose-invert max-w-none"
+                              components={{
+                                code(props: CodeProps) {
+                                  const { inline, className, children, ...rest } = props;
+                                  const match = /language-(\w+)/.exec(className || '');
+                                  return inline ? (
+                                    <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200" {...rest}>
+                                      {children}
+                                    </code>
+                                  ) : (
+                                    <div className="relative">
+                                      {match && (
+                                        <div className="absolute right-2 top-2 text-xs text-zinc-400">
+                                          {match[1]}
+                                        </div>
+                                      )}
+                                      <pre className="!bg-zinc-800 !p-4 rounded-lg overflow-x-auto">
+                                        <code className={className} {...rest}>
+                                          {children}
+                                        </code>
+                                      </pre>
+                                    </div>
+                                  );
+                                },
+                                // Add custom renderers for other elements
+                                p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
+                                ul: ({ children }) => <ul className="list-disc pl-4 mb-4">{children}</ul>,
+                                ol: ({ children }) => <ol className="list-decimal pl-4 mb-4">{children}</ol>,
+                                li: ({ children }) => <li className="mb-1">{children}</li>,
+                                blockquote: ({ children }) => (
+                                  <blockquote className="border-l-4 border-zinc-700 pl-4 italic my-4">
+                                    {children}
+                                  </blockquote>
+                                ),
+                                a: ({ children, href }) => (
+                                  <a 
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-400 hover:underline"
                                   >
                                     {children}
-                                  </code>
-                                );
-                              },
-                            }}
-                          >
-                            {message.content}
-                          </ReactMarkdown>
+                                  </a>
+                                ),
+                                table: ({ children }) => (
+                                  <div className="overflow-x-auto my-4">
+                                    <table className="min-w-full divide-y divide-zinc-700">
+                                      {children}
+                                    </table>
+                                  </div>
+                                ),
+                                th: ({ children }) => (
+                                  <th className="px-4 py-2 bg-zinc-800 text-left font-semibold">
+                                    {children}
+                                  </th>
+                                ),
+                                td: ({ children }) => (
+                                  <td className="px-4 py-2 border-t border-zinc-700">
+                                    {children}
+                                  </td>
+                                ),
+                              }}
+                            >
+                              {message.content}
+                            </ReactMarkdown>
+                          </div>
                         ) : (
                           <div className="flex items-center">
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            PolyBot is thinking...
+                            <span className="typing-indicator">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                            </span>
                           </div>
                         )
                       ) : (
-                        message.content
+                        <div className="whitespace-pre-wrap">{message.content}</div>
                       )}
                     </div>
                   </div>
@@ -184,7 +270,7 @@ export default function PolybotInterface() {
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isLoading}
-              placeholder={isLoading ? "PolyBot is thinking..." : "Type your message..."}
+              placeholder="Type your message..."
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
               <Button

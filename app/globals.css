@@ -73,36 +73,59 @@
 
 /* Add these styles at the end of the file */
 .markdown-content {
-  @apply text-sm;
+  @apply text-sm leading-relaxed;
 }
 
-.markdown-content p {
-  @apply mb-4;
+.markdown-content > * + * {
+  @apply mt-4;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  @apply font-semibold text-foreground;
 }
 
 .markdown-content h1 {
-  @apply text-2xl font-bold mb-4;
+  @apply text-2xl;
 }
 
 .markdown-content h2 {
-  @apply text-xl font-bold mb-3;
+  @apply text-xl;
 }
 
 .markdown-content h3 {
-  @apply text-lg font-bold mb-2;
+  @apply text-lg;
 }
 
-.markdown-content ul, 
+.markdown-content ul,
 .markdown-content ol {
-  @apply ml-4 mb-4;
+  @apply pl-6 my-4;
 }
 
-.markdown-content li {
-  @apply mb-1;
+.markdown-content ul {
+  @apply list-disc;
+}
+
+.markdown-content ol {
+  @apply list-decimal;
+}
+
+.markdown-content li + li {
+  @apply mt-1;
+}
+
+.markdown-content p {
+  @apply text-base text-muted-foreground;
 }
 
 .markdown-content pre {
-  @apply p-4 rounded-lg mb-4 overflow-x-auto bg-zinc-800;
+  @apply my-4 overflow-x-auto rounded-lg bg-zinc-800;
+}
+
+.markdown-content pre > div {
+  @apply !bg-transparent;
 }
 
 .markdown-content code {
@@ -113,27 +136,121 @@
   @apply bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200;
 }
 
-.markdown-content .block-code {
-  @apply block w-full;
-}
-
-.markdown-content a {
-  @apply text-blue-500 hover:underline;
-}
-
-.markdown-content blockquote {
-  @apply border-l-4 border-zinc-300 pl-4 italic my-4;
-}
-
-.markdown-content table {
-  @apply w-full border-collapse mb-4;
-}
-
-.markdown-content th,
-.markdown-content td {
-  @apply border border-zinc-300 p-2;
-}
-
 .markdown-content img {
-  @apply max-w-full h-auto rounded-lg;
+  @apply rounded-lg max-w-full h-auto my-4;
+}
+
+.markdown-content hr {
+  @apply my-8 border-zinc-700;
+}
+
+/* Add styles for math equations */
+.katex-display {
+  @apply overflow-x-auto py-4;
+}
+
+/* Add these styles for the typing indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  background-color: #9880ff;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { 
+    transform: scale(0);
+  } 40% { 
+    transform: scale(1.0);
+  }
+}
+
+/* Add or update markdown styles */
+.chat-message {
+  @apply text-sm leading-relaxed;
+}
+
+.chat-message pre {
+  @apply my-4 bg-zinc-800 rounded-lg overflow-x-auto;
+}
+
+.chat-message code {
+  @apply font-mono text-sm;
+}
+
+.chat-message p {
+  @apply mb-4 last:mb-0;
+}
+
+.chat-message h1,
+.chat-message h2,
+.chat-message h3,
+.chat-message h4 {
+  @apply font-semibold mb-4;
+}
+
+.chat-message h1 {
+  @apply text-2xl;
+}
+
+.chat-message h2 {
+  @apply text-xl;
+}
+
+.chat-message h3 {
+  @apply text-lg;
+}
+
+.chat-message ul,
+.chat-message ol {
+  @apply pl-4 mb-4;
+}
+
+.chat-message ul {
+  @apply list-disc;
+}
+
+.chat-message ol {
+  @apply list-decimal;
+}
+
+.chat-message li + li {
+  @apply mt-1;
+}
+
+.chat-message blockquote {
+  @apply border-l-4 border-zinc-700 pl-4 italic my-4;
+}
+
+.chat-message img {
+  @apply max-w-full h-auto rounded-lg my-4;
+}
+
+.chat-message table {
+  @apply w-full border-collapse my-4;
+}
+
+.chat-message th,
+.chat-message td {
+  @apply border border-zinc-700 px-4 py-2;
+}
+
+.chat-message a {
+  @apply text-blue-400 hover:underline;
 }
