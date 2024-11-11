@@ -1,10 +1,10 @@
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { conversationId: string } }
+  request: NextRequest,
+  context: { params: { conversationId: string } }
 ) {
   try {
     const { userId } = await auth();
@@ -12,7 +12,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const conversationId = params.conversationId;
+    const conversationId = context.params.conversationId;
 
     // First verify the conversation belongs to the user
     const { data: conversation, error: verifyError } = await supabase

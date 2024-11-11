@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function PATCH(request: Request) {
+export async function PATCH(request: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) {
