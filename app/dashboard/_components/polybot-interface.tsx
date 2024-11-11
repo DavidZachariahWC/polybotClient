@@ -55,7 +55,7 @@ export default function PolybotInterface() {
 
   useEffect(() => {
     setIsConversationLoading(true);
-    setMessages([]);  // Clear messages immediately
+    setMessages([]);
     if (contextMessages.length > 0) {
       setMessages(contextMessages);
     }
@@ -78,7 +78,6 @@ export default function PolybotInterface() {
         conversationId = newConversation.id;
       }
 
-      // Immediately add the user's message and a placeholder for the AI's response
       const newUserMessage: Message = { id: Date.now().toString(), sender: 'USER', content: userMessage };
       const placeholderBotMessage: Message = { id: (Date.now() + 1).toString(), sender: 'BOT', content: '' };
       setMessages(prevMessages => [...prevMessages, newUserMessage, placeholderBotMessage]);
@@ -95,9 +94,8 @@ export default function PolybotInterface() {
       if (!response.ok) throw new Error('Failed to send message');
       
       const data = await response.json();
-      const botResponse = data.message; // Adjust this based on your API response structure
+      const botResponse = data.message;
 
-      // Update the placeholder with the actual bot response
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === placeholderBotMessage.id ? { ...msg, content: botResponse } : msg
@@ -113,7 +111,6 @@ export default function PolybotInterface() {
   };
 
   const handleAttachment = () => {
-    // Implement attachment functionality here
     console.log('Attachment button clicked');
   };
 
@@ -126,16 +123,14 @@ export default function PolybotInterface() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Conversation Title */}
-      <div className="p-4 border-b">
+      <div className="p-4">
         <h2 className="text-lg font-semibold">
           {currentConversation?.title || 'New Conversation'}
         </h2>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
           {isConversationLoading ? (
             <div className="flex h-full items-center justify-center">
               <div className="typing-indicator">
@@ -171,15 +166,15 @@ export default function PolybotInterface() {
                         message.content ? (
                           <div className="chat-message text-base">
                             <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
-                              rehypePlugins={[rehypeHighlight]}
+                              remarkPlugins={[remarkGfm, emoji, remarkMath]}
+                              rehypePlugins={[rehypeHighlight, rehypeKatex]}
                               className="prose prose-invert max-w-none"
                               components={{
                                 code(props: CodeProps) {
                                   const { inline, className, children, ...rest } = props;
                                   const match = /language-(\w+)/.exec(className || '');
                                   return inline ? (
-                                    <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200" {...rest}>
+                                    <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200 text-lg" {...rest}>
                                       {children}
                                     </code>
                                   ) : (
@@ -197,8 +192,7 @@ export default function PolybotInterface() {
                                     </div>
                                   );
                                 },
-                                // Add custom renderers for other elements
-                                p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
+                                p: ({ children }) => <p className="mb-4 last:mb-0 text-lg">{children}</p>,
                                 ul: ({ children }) => <ul className="list-disc pl-4 mb-4">{children}</ul>,
                                 ol: ({ children }) => <ol className="list-decimal pl-4 mb-4">{children}</ol>,
                                 li: ({ children }) => <li className="mb-1">{children}</li>,
@@ -249,7 +243,7 @@ export default function PolybotInterface() {
                           </div>
                         )
                       ) : (
-                        <div className="whitespace-pre-wrap text-base">{message.content}</div>
+                        <div className="whitespace-pre-wrap text-lg">{message.content}</div>
                       )}
                     </div>
                   </div>
@@ -261,43 +255,42 @@ export default function PolybotInterface() {
         </div>
       </div>
 
-      {/* Input */}
-      <div className="border-t">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <form onSubmit={handleSendMessage} className="relative">
-            <Textarea
-              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[40px]"
-              rows={1}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
+      <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <form onSubmit={handleSendMessage} className="relative">
+          <Textarea
+            className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px]"
+            rows={4}
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isLoading}
+            placeholder={isLoading ? "PolyBot is thinking..." : "Type your message..."}
+          />
+          <div className="absolute left-2 bottom-2 flex items-center gap-2">
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              onClick={handleAttachment}
               disabled={isLoading}
-              placeholder={isLoading ? "PolyBot is thinking..." : "Type your message..."}
-            />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8"
-                onClick={handleAttachment}
-                disabled={isLoading}
-              >
-                <Paperclip size={16} />
-                <span className="sr-only">Attach file</span>
-              </Button>
-              <Button
-                type="submit"
-                size="icon"
-                className="h-8 w-8"
-                disabled={!inputMessage.trim() || isLoading}
-              >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
-                <span className="sr-only">Send message</span>
-              </Button>
-            </div>
-          </form>
-        </div>
+            >
+              <Paperclip size={16} />
+              <span className="sr-only">Attach file</span>
+            </Button>
+          </div>
+          <div className="absolute right-2 bottom-2 flex items-center">
+            <Button
+              type="submit"
+              size="icon"
+              className="h-8 w-8"
+              disabled={!inputMessage.trim() || isLoading}
+            >
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
+              <span className="sr-only">Send message</span>
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

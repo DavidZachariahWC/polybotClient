@@ -183,7 +183,7 @@
 
 /* Add or update markdown styles */
 .chat-message {
-  @apply text-sm leading-relaxed;
+  @apply text-lg leading-relaxed;
 }
 
 .chat-message pre {
@@ -191,11 +191,11 @@
 }
 
 .chat-message code {
-  @apply font-mono text-sm;
+  @apply font-mono text-lg;
 }
 
 .chat-message p {
-  @apply mb-4 last:mb-0;
+  @apply mb-4 last:mb-0 text-lg;
 }
 
 .chat-message h1,
