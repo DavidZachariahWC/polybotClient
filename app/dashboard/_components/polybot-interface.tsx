@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useConversation } from '@/contexts/ConversationContext'
-import { Bot, ClipboardCopy, Send } from "lucide-react"
+import { Bot, ClipboardCopy, Send, Paperclip } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -70,106 +70,137 @@ export default function PolybotInterface() {
     }
   };
 
+  const handleAttachment = () => {
+    // Implement attachment functionality here
+    console.log('Attachment button clicked');
+  };
+
+  // Update the handleKeyPress function to handleKeyDown
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Conversation Title */}
-      <div className="p-4 border-b">
+      <div className="p-4 border-b text-center">
         <h2 className="text-lg font-semibold">
           {currentConversation?.title || 'New Conversation'}
         </h2>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4">
-        {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-muted-foreground">
-            Start a conversation...
-          </div>
-        ) : (
-          <div className="space-y-4 py-4">
-            {messages.map((message) => (
-              <div key={message.id} className="flex gap-3 group">
-                <Avatar className="h-8 w-8">
-                  {message.sender === 'BOT' ? (
-                    <div className="bg-purple-500 h-full w-full flex items-center justify-center">
-                      <Bot size={16} className="text-white" />
-                    </div>
-                  ) : (
-                    <AvatarImage src="/placeholder.svg" />
-                  )}
-                  <AvatarFallback>{message.sender === 'BOT' ? 'AI' : 'U'}</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col gap-1 flex-grow">
-                  <div className="text-sm font-medium">
-                    {message.sender === 'BOT' ? 'PolyBot' : 'You'}
-                  </div>
-                  <div className="text-base">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          {messages.length === 0 ? (
+            <div className="flex h-full items-center justify-center text-muted-foreground">
+              Start a conversation...
+            </div>
+          ) : (
+            <div className="space-y-4 py-4">
+              {messages.map((message) => (
+                <div key={message.id} className="flex gap-3 group">
+                  <Avatar className="h-8 w-8 flex-shrink-0">
                     {message.sender === 'BOT' ? (
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeHighlight]}
-                        components={{
-                          code({ inline, className, children, ...props }: CodeProps) {
-                            return (
-                              <code
-                                className={`${className} ${
-                                  inline ? 'inline-code' : 'block-code'
-                                }`}
-                                {...props}
-                              >
-                                {children}
-                              </code>
-                            );
-                          },
-                        }}
-                      >
-                        {message.content}
-                      </ReactMarkdown>
+                      <div className="bg-purple-500 h-full w-full flex items-center justify-center">
+                        <Bot size={16} className="text-white" />
+                      </div>
                     ) : (
-                      message.content
+                      <AvatarImage src="/placeholder.svg" />
+                    )}
+                    <AvatarFallback>{message.sender === 'BOT' ? 'AI' : 'U'}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col gap-1 flex-grow">
+                    <div className="text-sm font-medium">
+                      {message.sender === 'BOT' ? 'PolyBot' : 'You'}
+                    </div>
+                    <div className="text-base">
+                      {message.sender === 'BOT' ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeHighlight]}
+                          components={{
+                            code({ inline, className, children, ...props }: CodeProps) {
+                              return (
+                                <code
+                                  className={`${className} ${
+                                    inline ? 'inline-code' : 'block-code'
+                                  }`}
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              );
+                            },
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      ) : (
+                        message.content
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    {message.sender === 'BOT' && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                        onClick={() => navigator.clipboard.writeText(message.content)}
+                      >
+                        <ClipboardCopy size={12} />
+                      </Button>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center">
-                  {message.sender === 'BOT' && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-6 w-6 text-muted-foreground hover:text-foreground"
-                      onClick={() => navigator.clipboard.writeText(message.content)}
-                    >
-                      <ClipboardCopy size={12} />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSendMessage} className="p-4 border-t">
-        <div className="relative">
-          <Textarea
-            className="resize-none rounded-xl py-3 px-4 pr-10 min-h-[40px]"
-            rows={1}
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            disabled={isLoading}
-          />
-          <Button
-            type="submit"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
-            disabled={!inputMessage.trim() || isLoading}
-          >
-            <Send size={14} />
-            <span className="sr-only">Send message</span>
-          </Button>
+      <div className="border-t">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <form onSubmit={handleSendMessage} className="relative">
+            <Textarea
+              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[40px]"
+              rows={1}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isLoading}
+              placeholder="Type your message..."
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                onClick={handleAttachment}
+              >
+                <Paperclip size={16} />
+                <span className="sr-only">Attach file</span>
+              </Button>
+              <Button
+                type="submit"
+                size="icon"
+                className="h-8 w-8"
+                disabled={!inputMessage.trim() || isLoading}
+              >
+                <Send size={16} />
+                <span className="sr-only">Send message</span>
+              </Button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
