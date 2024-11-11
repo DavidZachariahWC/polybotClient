@@ -5,14 +5,14 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { conversationId: string } }
-) {
+): Promise<NextResponse> {
   try {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const conversationId = params.conversationId;
+    const { conversationId } = params;
 
     // First verify the conversation belongs to the user
     const { data: conversation, error: verifyError } = await supabase
