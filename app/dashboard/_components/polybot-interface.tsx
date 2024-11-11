@@ -130,7 +130,7 @@ export default function PolybotInterface() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {isConversationLoading ? (
             <div className="flex h-full items-center justify-center">
               <div className="typing-indicator">
@@ -161,10 +161,10 @@ export default function PolybotInterface() {
                     <div className="text-sm font-medium">
                       {message.sender === 'BOT' ? 'PolyBot' : 'You'}
                     </div>
-                    <div className="text-base">
+                    <div className="text-lg">
                       {message.sender === 'BOT' ? (
                         message.content ? (
-                          <div className="chat-message text-base">
+                          <div className="chat-message text-lg">
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm, emoji, remarkMath]}
                               rehypePlugins={[rehypeHighlight, rehypeKatex]}
@@ -174,7 +174,7 @@ export default function PolybotInterface() {
                                   const { inline, className, children, ...rest } = props;
                                   const match = /language-(\w+)/.exec(className || '');
                                   return inline ? (
-                                    <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200 text-lg" {...rest}>
+                                    <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200" {...rest}>
                                       {children}
                                     </code>
                                   ) : (
@@ -192,7 +192,7 @@ export default function PolybotInterface() {
                                     </div>
                                   );
                                 },
-                                p: ({ children }) => <p className="mb-4 last:mb-0 text-lg">{children}</p>,
+                                p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
                                 ul: ({ children }) => <ul className="list-disc pl-4 mb-4">{children}</ul>,
                                 ol: ({ children }) => <ol className="list-decimal pl-4 mb-4">{children}</ol>,
                                 li: ({ children }) => <li className="mb-1">{children}</li>,
@@ -255,10 +255,10 @@ export default function PolybotInterface() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
         <form onSubmit={handleSendMessage} className="relative">
           <Textarea
-            className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px]"
+            className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full"
             rows={4}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
