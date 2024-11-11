@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export default function DashboardTopNav() {
   return (
-    <header className="flex h-14 lg:h-[55px] items-center gap-4 border-b px-4">
+    <header className="flex h-14 items-center gap-4 border-b px-4 w-full">
       <Link href="/dashboard" className="font-semibold text-lg">
         Polybot
       </Link>

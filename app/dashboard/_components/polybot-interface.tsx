@@ -74,6 +74,13 @@ export default function PolybotInterface() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Conversation Title */}
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold">
+          {currentConversation?.title || 'New Conversation'}
+        </h2>
+      </div>
+
       {/* Messages */}
       <ScrollArea className="flex-1 px-4" ref={scrollRef}>
         {messages.length === 0 ? (

@@ -24,7 +24,7 @@ export default function PolybotSidebar() {
   };
 
   return (
-    <div className="w-64 border-r flex flex-col">
+    <div className="w-64 border-r flex flex-col h-full">
       <div className="p-2">
         <Button 
           className="w-full justify-start gap-2 rounded-lg"
