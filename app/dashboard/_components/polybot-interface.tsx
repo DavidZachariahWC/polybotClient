@@ -45,6 +45,7 @@ export default function PolybotInterface() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isConversationLoading, setIsConversationLoading] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,7 +54,12 @@ export default function PolybotInterface() {
   useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
-    setMessages(contextMessages);
+    setIsConversationLoading(true);
+    setMessages([]);  // Clear messages immediately
+    if (contextMessages.length > 0) {
+      setMessages(contextMessages);
+    }
+    setIsConversationLoading(false);
   }, [contextMessages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -130,7 +136,15 @@ export default function PolybotInterface() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          {messages.length === 0 ? (
+          {isConversationLoading ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               Start a conversation...
             </div>
@@ -155,7 +169,7 @@ export default function PolybotInterface() {
                     <div className="text-base">
                       {message.sender === 'BOT' ? (
                         message.content ? (
-                          <div className="chat-message">
+                          <div className="chat-message text-base">
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               rehypePlugins={[rehypeHighlight]}
@@ -235,25 +249,13 @@ export default function PolybotInterface() {
                           </div>
                         )
                       ) : (
-                        <div className="whitespace-pre-wrap">{message.content}</div>
+                        <div className="whitespace-pre-wrap text-base">{message.content}</div>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center">
-                    {message.sender === 'BOT' && message.content && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
-                        onClick={() => navigator.clipboard.writeText(message.content)}
-                      >
-                        <ClipboardCopy size={12} />
-                      </Button>
-                    )}
-                  </div>
+                  <div ref={messagesEndRef} />
                 </div>
               ))}
-              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
@@ -270,7 +272,7 @@ export default function PolybotInterface() {
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isLoading}
-              placeholder="Type your message..."
+              placeholder={isLoading ? "PolyBot is thinking..." : "Type your message..."}
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
               <Button
