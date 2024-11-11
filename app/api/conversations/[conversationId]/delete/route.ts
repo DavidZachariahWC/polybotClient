@@ -64,3 +64,9 @@ export async function DELETE(
   }
 }
 */
+
+// Temporary placeholder to make the file a module
+export const dynamic = 'force-dynamic';
+export async function DELETE() {
+  return new Response('Placeholder');
+}
