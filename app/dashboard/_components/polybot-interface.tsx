@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useConversation } from '@/contexts/ConversationContext'
-import { Bot, ClipboardCopy, Send, Paperclip } from "lucide-react"
+import { Bot, ClipboardCopy, Send, Paperclip, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -42,11 +42,14 @@ export default function PolybotInterface() {
     if (!inputMessage.trim() || isLoading) return;
 
     setIsLoading(true);
+    const userMessage = inputMessage;
+    setInputMessage('');
+
     try {
       let conversationId = currentConversation?.id;
       
       if (!conversationId) {
-        const newConversation = await createNewConversation(inputMessage);
+        const newConversation = await createNewConversation(userMessage);
         conversationId = newConversation.id;
       }
 
@@ -54,7 +57,7 @@ export default function PolybotInterface() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: inputMessage }],
+          messages: [{ role: 'user', content: userMessage }],
           conversationId
         }),
       });
@@ -62,7 +65,6 @@ export default function PolybotInterface() {
       if (!response.ok) throw new Error('Failed to send message');
       
       await loadMessages(conversationId);
-      setInputMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -75,7 +77,7 @@ export default function PolybotInterface() {
     console.log('Attachment button clicked');
   };
 
-  // Update the handleKeyPress function to handleKeyDown
+  // Add this new function to handle key down
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -86,7 +88,7 @@ export default function PolybotInterface() {
   return (
     <div className="flex flex-col h-full">
       {/* Conversation Title */}
-      <div className="p-4 border-b text-center">
+      <div className="p-4 border-b">
         <h2 className="text-lg font-semibold">
           {currentConversation?.title || 'New Conversation'}
         </h2>
@@ -119,33 +121,40 @@ export default function PolybotInterface() {
                     </div>
                     <div className="text-base">
                       {message.sender === 'BOT' ? (
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          rehypePlugins={[rehypeHighlight]}
-                          components={{
-                            code({ inline, className, children, ...props }: CodeProps) {
-                              return (
-                                <code
-                                  className={`${className} ${
-                                    inline ? 'inline-code' : 'block-code'
-                                  }`}
-                                  {...props}
-                                >
-                                  {children}
-                                </code>
-                              );
-                            },
-                          }}
-                        >
-                          {message.content}
-                        </ReactMarkdown>
+                        message.content ? (
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeHighlight]}
+                            components={{
+                              code({ inline, className, children, ...props }: CodeProps) {
+                                return (
+                                  <code
+                                    className={`${className} ${
+                                      inline ? 'inline-code' : 'block-code'
+                                    }`}
+                                    {...props}
+                                  >
+                                    {children}
+                                  </code>
+                                );
+                              },
+                            }}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        ) : (
+                          <div className="flex items-center">
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            PolyBot is thinking...
+                          </div>
+                        )
                       ) : (
                         message.content
                       )}
                     </div>
                   </div>
                   <div className="flex items-center">
-                    {message.sender === 'BOT' && (
+                    {message.sender === 'BOT' && message.content && (
                       <Button 
                         variant="ghost" 
                         size="icon" 
@@ -175,7 +184,7 @@ export default function PolybotInterface() {
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isLoading}
-              placeholder="Type your message..."
+              placeholder={isLoading ? "PolyBot is thinking..." : "Type your message..."}
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
               <Button
@@ -184,6 +193,7 @@ export default function PolybotInterface() {
                 variant="ghost"
                 className="h-8 w-8"
                 onClick={handleAttachment}
+                disabled={isLoading}
               >
                 <Paperclip size={16} />
                 <span className="sr-only">Attach file</span>
@@ -194,7 +204,7 @@ export default function PolybotInterface() {
                 className="h-8 w-8"
                 disabled={!inputMessage.trim() || isLoading}
               >
-                <Send size={16} />
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
                 <span className="sr-only">Send message</span>
               </Button>
             </div>
