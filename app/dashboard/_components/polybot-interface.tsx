@@ -71,10 +71,6 @@ export default function PolybotInterface() {
     fetchMessages();
   }, [currentConversation, loadMessages]);
 
-  useEffect(() => {
-    setMessages(contextMessages);
-  }, [contextMessages]);
-
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
