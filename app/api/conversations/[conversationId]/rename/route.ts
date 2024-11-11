@@ -1,4 +1,5 @@
-//app/api/conversations/[conversationId]/rename/route.ts
+// Temporarily commented out due to Node.js glitch
+/*
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
 import { NextRequest, NextResponse } from 'next/server';
@@ -60,4 +61,11 @@ export async function PATCH(
     console.error('Error in PATCH conversation rename:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+} 
+*/
+
+// Temporary placeholder to make the file a module
+export const dynamic = 'force-dynamic';
+export async function PATCH() {
+  return new Response('Placeholder');
 } 

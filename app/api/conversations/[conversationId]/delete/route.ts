@@ -1,4 +1,5 @@
-//app/api/conversations/[conversationId]/delete/route.ts
+// Temporarily commented out due to Node.js glitch
+/*
 import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
 import { NextRequest, NextResponse } from 'next/server';
@@ -62,3 +63,4 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+*/
