@@ -41,7 +41,6 @@ export default function PolybotInterface() {
     loadMessages
   } = useConversation();
 
-  const [messages, setMessages] = useState<Message[]>(contextMessages);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -51,13 +50,12 @@ export default function PolybotInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(scrollToBottom, [messages]);
+  useEffect(scrollToBottom, [contextMessages]);
 
   useEffect(() => {
     const fetchMessages = async () => {
       if (currentConversation) {
         setIsConversationLoading(true);
-        setMessages([]);
         try {
           await loadMessages(currentConversation.id);
         } catch (error) {
@@ -69,7 +67,7 @@ export default function PolybotInterface() {
     };
 
     fetchMessages();
-  }, [currentConversation, loadMessages]);
+  }, [currentConversation]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,10 +85,6 @@ export default function PolybotInterface() {
         conversationId = newConversation.id;
       }
 
-      const newUserMessage: Message = { id: Date.now().toString(), sender: 'USER', content: userMessage };
-      const placeholderBotMessage: Message = { id: (Date.now() + 1).toString(), sender: 'BOT', content: '' };
-      setMessages(prevMessages => [...prevMessages, newUserMessage, placeholderBotMessage]);
-
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,15 +96,6 @@ export default function PolybotInterface() {
 
       if (!response.ok) throw new Error('Failed to send message');
       
-      const data = await response.json();
-      const botResponse = data.message;
-
-      setMessages(prevMessages => 
-        prevMessages.map(msg => 
-          msg.id === placeholderBotMessage.id ? { ...msg, content: botResponse } : msg
-        )
-      );
-
       await loadMessages(conversationId);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -148,13 +133,13 @@ export default function PolybotInterface() {
                 <span></span>
               </div>
             </div>
-          ) : messages.length === 0 ? (
+          ) : contextMessages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               Start a conversation...
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              {messages.map((message) => (
+              {contextMessages.map((message) => (
                 <div key={message.id} className="flex gap-3 group">
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     {message.sender === 'BOT' ? (
