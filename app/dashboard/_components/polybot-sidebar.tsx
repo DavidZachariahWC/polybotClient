@@ -24,11 +24,11 @@ export default function PolybotSidebar() {
   };
 
   return (
-    <div className="w-64 bg-zinc-900/50 border-r border-zinc-700 flex flex-col">
+    <div className="w-64 border-r flex flex-col">
       <div className="p-2">
         <Button 
-          className="w-full justify-start gap-2 rounded-lg bg-transparent text-white hover:bg-purple-500/20 focus:bg-purple-500/20 focus:ring-2 focus:ring-purple-500/50" 
-          variant="ghost"
+          className="w-full justify-start gap-2 rounded-lg"
+          variant="outline"
           onClick={handleNewChat}
         >
           <Plus size={16} />
@@ -40,8 +40,8 @@ export default function PolybotSidebar() {
           {conversations.map((conv) => (
             <Button 
               key={conv.id}
-              className={`w-full justify-start gap-2 rounded-lg text-white hover:bg-purple-500/20 focus:ring-2 focus:ring-purple-500/50 ${
-                currentConversation?.id === conv.id ? 'bg-purple-500/20' : 'bg-transparent'
+              className={`w-full justify-start gap-2 rounded-lg ${
+                currentConversation?.id === conv.id ? 'bg-purple-500/20' : ''
               }`}
               variant="ghost"
               onClick={() => {
@@ -57,4 +57,4 @@ export default function PolybotSidebar() {
       </ScrollArea>
     </div>
   );
-} 
+}
