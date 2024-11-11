@@ -2,7 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { supabase } from '@/lib/supabase/index';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function DELETE(
+export async function PATCH(
   request: NextRequest,
   { params }: { params: { conversationId: string } }
 ) {
@@ -13,6 +13,11 @@ export async function DELETE(
     }
 
     const conversationId = params.conversationId;
+    const { title } = await request.json();
+
+    if (!title) {
+      return NextResponse.json({ error: 'Missing title' }, { status: 400 });
+    }
 
     // First verify the conversation belongs to the user
     const { data: conversation, error: verifyError } = await supabase
@@ -26,31 +31,25 @@ export async function DELETE(
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }
 
-    // Delete all messages first (due to foreign key constraint)
-    const { error: messagesError } = await supabase
-      .from('messages')
-      .delete()
-      .eq('conversation_id', conversationId);
-
-    if (messagesError) {
-      console.error('Error deleting messages:', messagesError);
-      return NextResponse.json({ error: 'Failed to delete messages' }, { status: 500 });
-    }
-
-    // Then delete the conversation
-    const { error: conversationError } = await supabase
+    // Update the conversation title
+    const { data, error } = await supabase
       .from('conversations')
-      .delete()
-      .eq('id', conversationId);
+      .update({ 
+        title,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', conversationId)
+      .select()
+      .single();
 
-    if (conversationError) {
-      console.error('Error deleting conversation:', conversationError);
-      return NextResponse.json({ error: 'Failed to delete conversation' }, { status: 500 });
+    if (error) {
+      console.error('Error renaming conversation:', error);
+      return NextResponse.json({ error: 'Failed to rename conversation' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Error in DELETE conversation:', error);
+    console.error('Error in PATCH conversation rename:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+} 

@@ -65,13 +65,12 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
   const renameConversation = async (conversationId: string, newTitle: string) => {
     try {
-      const response = await fetch(`/api/conversations/rename`, {
+      const response = await fetch(`/api/conversations/${conversationId}/rename`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          conversationId,
           title: newTitle
         })
       });
