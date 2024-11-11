@@ -54,12 +54,25 @@ export default function PolybotInterface() {
   useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
-    setIsConversationLoading(true);
-    setMessages([]);
-    if (contextMessages.length > 0) {
-      setMessages(contextMessages);
-    }
-    setIsConversationLoading(false);
+    const fetchMessages = async () => {
+      if (currentConversation) {
+        setIsConversationLoading(true);
+        setMessages([]);
+        try {
+          await loadMessages(currentConversation.id);
+        } catch (error) {
+          console.error('Error loading messages:', error);
+        } finally {
+          setIsConversationLoading(false);
+        }
+      }
+    };
+
+    fetchMessages();
+  }, [currentConversation, loadMessages]);
+
+  useEffect(() => {
+    setMessages(contextMessages);
   }, [contextMessages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -164,7 +177,7 @@ export default function PolybotInterface() {
                     <div className="text-lg">
                       {message.sender === 'BOT' ? (
                         message.content ? (
-                          <div className="chat-message text-lg">
+                          <div className="chat-message">
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm, emoji, remarkMath]}
                               rehypePlugins={[rehypeHighlight, rehypeKatex]}
@@ -243,7 +256,7 @@ export default function PolybotInterface() {
                           </div>
                         )
                       ) : (
-                        <div className="whitespace-pre-wrap text-lg">{message.content}</div>
+                        <div className="chat-message text-sm whitespace-pre-wrap">{message.content}</div>
                       )}
                     </div>
                   </div>
@@ -263,8 +276,8 @@ export default function PolybotInterface() {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={isLoading}
-            placeholder={isLoading ? "PolyBot is thinking..." : "Type your message..."}
+            disabled={isLoading || isConversationLoading}
+            placeholder={isLoading || isConversationLoading ? "PolyBot is thinking..." : "Type your message..."}
           />
           <div className="absolute left-2 bottom-2 flex items-center gap-2">
             <Button
@@ -273,7 +286,7 @@ export default function PolybotInterface() {
               variant="ghost"
               className="h-8 w-8"
               onClick={handleAttachment}
-              disabled={isLoading}
+              disabled={isLoading || isConversationLoading}
             >
               <Paperclip size={16} />
               <span className="sr-only">Attach file</span>
@@ -284,9 +297,9 @@ export default function PolybotInterface() {
               type="submit"
               size="icon"
               className="h-8 w-8"
-              disabled={!inputMessage.trim() || isLoading}
+              disabled={!inputMessage.trim() || isLoading || isConversationLoading}
             >
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
+              {isLoading || isConversationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
               <span className="sr-only">Send message</span>
             </Button>
           </div>
