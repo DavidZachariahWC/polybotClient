@@ -182,7 +182,7 @@ export default function PolybotInterface() {
                           </div>
                         )
                       ) : (
-                        <div className="chat-message text-sm whitespace-pre-wrap">{message.content}</div>
+                        <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                       )}
                     </div>
                   </div>
