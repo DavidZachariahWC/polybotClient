@@ -9,16 +9,45 @@ import remarkEmoji from 'remark-emoji';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import type { SyntaxHighlighterProps } from 'react-syntax-highlighter';
 import 'katex/dist/katex.min.css';
+import './MarkdownRenderer.css';
 import DOMPurify from 'dompurify';
+
+// Import languages
+import typescript from 'react-syntax-highlighter/dist/cjs/languages/prism/typescript';
+import javascript from 'react-syntax-highlighter/dist/cjs/languages/prism/javascript';
+import python from 'react-syntax-highlighter/dist/cjs/languages/prism/python';
+import json from 'react-syntax-highlighter/dist/cjs/languages/prism/json';
+import bash from 'react-syntax-highlighter/dist/cjs/languages/prism/bash';
+import css from 'react-syntax-highlighter/dist/cjs/languages/prism/css';
+import sql from 'react-syntax-highlighter/dist/cjs/languages/prism/sql';
+import jsx from 'react-syntax-highlighter/dist/cjs/languages/prism/jsx';
+import tsx from 'react-syntax-highlighter/dist/cjs/languages/prism/tsx';
+import html from 'react-syntax-highlighter/dist/cjs/languages/prism/markup';
+import yaml from 'react-syntax-highlighter/dist/cjs/languages/prism/yaml';
+
+// Register languages
+SyntaxHighlighter.registerLanguage('typescript', typescript);
+SyntaxHighlighter.registerLanguage('javascript', javascript);
+SyntaxHighlighter.registerLanguage('python', python);
+SyntaxHighlighter.registerLanguage('json', json);
+SyntaxHighlighter.registerLanguage('bash', bash);
+SyntaxHighlighter.registerLanguage('css', css);
+SyntaxHighlighter.registerLanguage('sql', sql);
+SyntaxHighlighter.registerLanguage('jsx', jsx);
+SyntaxHighlighter.registerLanguage('tsx', tsx);
+SyntaxHighlighter.registerLanguage('html', html);
+SyntaxHighlighter.registerLanguage('yaml', yaml);
 
 interface CodeProps {
   node?: any;
   inline?: boolean;
   className?: string;
   children?: React.ReactNode;
+  [key: string]: any;  // Allow for additional props
 }
 
 interface MarkdownRendererProps {
@@ -46,85 +75,56 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkEmoji, remarkMath]}
       rehypePlugins={[rehypeKatex, rehypeRaw]}
-      className="prose prose-invert max-w-none"
       components={{
-        code: ({ inline, className, children }: CodeProps) => {
+        code: ({ node, inline, className, children, ...props }: CodeProps) => {
           const match = /language-(\w+)/.exec(className || '');
           
           if (inline) {
             return (
-              <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200 text-sm">
+              <code className={className} {...props}>
                 {children}
               </code>
             );
           }
 
+          const language = match ? match[1] : '';
+          
+          if (language === 'json') {
+            try {
+              const jsonContent = JSON.stringify(JSON.parse(String(children)), null, 2);
+              return (
+                <SyntaxHighlighter
+                  style={oneDark as any}
+                  language="json"
+                  PreTag="div"
+                  {...props}
+                >
+                  {jsonContent}
+                </SyntaxHighlighter>
+              );
+            } catch (e) {
+              // If JSON parsing fails, render as is
+            }
+          }
+
           return (
-            <div className="relative my-4">
-              {match && (
+            <div className="relative">
+              {language && (
                 <div className="absolute right-2 top-2 text-xs text-zinc-400 bg-zinc-800/50 px-2 py-1 rounded">
-                  {match[1]}
+                  {language}
                 </div>
               )}
               <SyntaxHighlighter
-                style={oneDark}
-                language={match?.[1] || 'text'}
+                style={oneDark as any}
+                language={language || 'text'}
                 PreTag="div"
-                customStyle={{
-                  margin: 0,
-                  borderRadius: '0.5rem',
-                  background: 'rgb(39 39 42)',
-                }}
+                {...props}
               >
                 {String(children).replace(/\n$/, '')}
               </SyntaxHighlighter>
             </div>
           );
-        },
-        p: ({ children }) => (
-          <p className="mb-4 last:mb-0 text-zinc-200">{children}</p>
-        ),
-        ul: ({ children }) => (
-          <ul className="list-disc pl-4 mb-4 text-zinc-200">{children}</ul>
-        ),
-        ol: ({ children }) => (
-          <ol className="list-decimal pl-4 mb-4 text-zinc-200">{children}</ol>
-        ),
-        li: ({ children }) => (
-          <li className="mb-1 text-zinc-200">{children}</li>
-        ),
-        blockquote: ({ children }) => (
-          <blockquote className="border-l-4 border-zinc-700 pl-4 italic my-4 text-zinc-300">
-            {children}
-          </blockquote>
-        ),
-        a: ({ children, href }) => (
-          <a 
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:underline"
-          >
-            {children}
-          </a>
-        ),
-        table: ({ children }) => (
-          <div className="overflow-x-auto my-4">
-            <table className="min-w-full divide-y divide-zinc-700">
-              {children}
-            </table>
-          </div>
-        ),
-        th: ({ children }) => (
-          <th className="px-4 py-2 bg-zinc-800 text-left font-semibold text-zinc-200">
-            {children}
-          </th>
-        ),
-        td: ({ children }) => (
-          <td className="px-4 py-2 border-t border-zinc-700 text-zinc-200">
-            {children}
-          </td>
-        ),
+        }
       }}
     >
       {sanitizeHtml(content)}
@@ -132,4 +132,4 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   );
 };
 
-export default MarkdownRenderer; 
+export default MarkdownRenderer;
