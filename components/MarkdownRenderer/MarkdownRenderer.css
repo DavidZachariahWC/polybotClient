@@ -1,10 +1,7 @@
 /* Chat message styling */
 .chat-message {
-  background-color: rgb(39 39 42);
   color: #e4e4e7;
   padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 

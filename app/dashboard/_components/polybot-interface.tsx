@@ -186,19 +186,6 @@ export default function PolybotInterface() {
                       )}
                     </div>
                   </div>
-                  {/* Clipboard Copy Button */}
-                  <div className="flex items-center">
-                    {message.sender === 'BOT' && message.content && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
-                        onClick={() => navigator.clipboard.writeText(message.content)}
-                      >
-                        <ClipboardCopy size={12} />
-                      </Button>
-                    )}
-                  </div>
                 </div>
               ))}
               <div ref={messagesEndRef} />
