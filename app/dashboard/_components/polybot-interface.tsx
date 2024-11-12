@@ -1,22 +1,13 @@
-//app/dashboard/_components/polybot-interface.tsx
 'use client'
 
 import * as React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useConversation } from '@/contexts/ConversationContext'
-import { Bot, ClipboardCopy, Send, Paperclip, Loader2 } from "lucide-react"
+import { Bot, Send, Paperclip, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer'
-
-interface CodeProps {
-  node?: any;
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
-  [key: string]: any;
-}
 
 interface Message {
   id: string;
@@ -34,9 +25,9 @@ export default function PolybotInterface() {
 
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isBotTyping, setIsBotTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isConversationLoading, setIsConversationLoading] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(contextMessages);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -61,10 +52,6 @@ export default function PolybotInterface() {
     fetchMessages();
   }, [currentConversation]);
 
-  useEffect(() => {
-    setMessages(contextMessages);
-  }, [contextMessages]);
-
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
@@ -81,9 +68,11 @@ export default function PolybotInterface() {
         conversationId = newConversation.id;
       }
 
-      const newUserMessage: Message = { id: Date.now().toString(), sender: 'USER', content: userMessage };
-      const placeholderBotMessage: Message = { id: (Date.now() + 1).toString(), sender: 'BOT', content: '' };
-      setMessages(prevMessages => [...prevMessages, newUserMessage, placeholderBotMessage]);
+      // Immediately add user message to context
+      await loadMessages(conversationId);
+
+      // Show bot typing indicator
+      setIsBotTyping(true);
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -96,6 +85,8 @@ export default function PolybotInterface() {
 
       if (!response.ok) throw new Error('Failed to send message');
       
+      // Hide bot typing indicator and load the actual response
+      setIsBotTyping(false);
       await loadMessages(conversationId);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -139,8 +130,11 @@ export default function PolybotInterface() {
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              {messages.map((message) => (
-                <div key={message.id} className="flex gap-3 group">
+              {contextMessages.map((message) => (
+                <div
+                  key={message.id}
+                  className="flex gap-3 group"
+                >
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     {message.sender === 'BOT' ? (
                       <div className="bg-purple-500 h-full w-full flex items-center justify-center">
@@ -175,9 +169,30 @@ export default function PolybotInterface() {
                       )}
                     </div>
                   </div>
-                  <div ref={messagesEndRef} />
                 </div>
               ))}
+              {isBotTyping && (
+                <div className="flex gap-3 group">
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <div className="bg-purple-500 h-full w-full flex items-center justify-center">
+                      <Bot size={16} className="text-white" />
+                    </div>
+                    <AvatarFallback>AI</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col gap-1 flex-grow">
+                    <div className="text-sm font-medium">PolyBot</div>
+                    <div className="text-base">
+                      <div className="flex h-full items-center">
+                        <div className="typing-indicator">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -220,6 +235,7 @@ export default function PolybotInterface() {
           </div>
         </form>
       </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 }
