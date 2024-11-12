@@ -1,3 +1,4 @@
+//officialPolyBot/app/dashboard/_components/polybot-interface.tsx
 'use client'
 
 import * as React from "react"
@@ -28,13 +29,28 @@ export default function PolybotInterface() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isConversationLoading, setIsConversationLoading] = useState(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // Set up ResizeObserver for smooth scrolling
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      messagesEndRef.current?.scrollIntoView({ 
+        behavior: "smooth",
+        block: "end",
+      });
+    });
 
-  useEffect(scrollToBottom, [messages]);
+    if (messagesContainerRef.current) {
+      observer.observe(messagesContainerRef.current);
+    }
+
+    return () => {
+      if (messagesContainerRef.current) {
+        observer.unobserve(messagesContainerRef.current);
+      }
+    };
+  }, []);
 
   // Sync local messages with contextMessages
   useEffect(() => {
@@ -145,7 +161,10 @@ export default function PolybotInterface() {
               Start a conversation...
             </div>
           ) : (
-            <div className="space-y-4 py-4">
+            <div 
+              className="space-y-4 py-4"
+              ref={messagesContainerRef}
+            >
               {messages.map((message) => (
                 <div
                   key={message.id}
