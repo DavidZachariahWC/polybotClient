@@ -65,8 +65,8 @@ export default function PolybotSidebar() {
     <div className="w-64 border-r flex flex-col h-full bg-[hsl(var(--sidebar-background))]">
       <div className="p-4">
         <Button 
-          className="w-full justify-start gap-2 rounded-lg"
-          variant="outline"
+          className="w-full justify-start gap-2 rounded-lg bg-purple-500/20 hover:bg-secondary"
+          variant="ghost"
           onClick={handleNewChat}
         >
           <Plus size={16} />
@@ -129,7 +129,9 @@ export default function PolybotSidebar() {
         </div>
       </ScrollArea>
       <div className="p-2 flex justify-between items-center">
-        <ModeToggle />
+        <div className="bg-transparent">
+          <ModeToggle />
+        </div>
         {config?.auth?.enabled && <UserProfile />}
       </div>
     </div>

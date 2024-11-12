@@ -154,12 +154,14 @@ export default function PolybotInterface() {
       <div className="p-2 flex-shrink-0">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-between">
-              Polybot Quickchat
-              <ChevronDown className="ml-2 h-4 w-4" />
+            <Button variant="ghost" className="w-full text-base">
+              <div className="flex items-center">
+                Polybot Quickchat
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start">
+          <DropdownMenuContent className="w-56 bg-[#2F2F2F] border-none" align="start">
             <DropdownMenuItem>Model 1</DropdownMenuItem>
             <DropdownMenuItem>Model 2</DropdownMenuItem>
             <DropdownMenuItem>Model 3</DropdownMenuItem>
@@ -239,7 +241,7 @@ export default function PolybotInterface() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
           <form onSubmit={handleSendMessage} className="relative">
             <Textarea
-              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full"
+              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full bg-[#2F2F2F] border-none focus-visible:ring-1 focus-visible:ring-purple-500/50"
               rows={4}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
