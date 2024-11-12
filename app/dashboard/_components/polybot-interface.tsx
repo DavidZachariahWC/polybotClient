@@ -36,6 +36,7 @@ export default function PolybotInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isConversationLoading, setIsConversationLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>(contextMessages);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,6 +61,10 @@ export default function PolybotInterface() {
     fetchMessages();
   }, [currentConversation]);
 
+  useEffect(() => {
+    setMessages(contextMessages);
+  }, [contextMessages]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
@@ -75,6 +80,10 @@ export default function PolybotInterface() {
         const newConversation = await createNewConversation(userMessage);
         conversationId = newConversation.id;
       }
+
+      const newUserMessage: Message = { id: Date.now().toString(), sender: 'USER', content: userMessage };
+      const placeholderBotMessage: Message = { id: (Date.now() + 1).toString(), sender: 'BOT', content: '' };
+      setMessages(prevMessages => [...prevMessages, newUserMessage, placeholderBotMessage]);
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -130,7 +139,7 @@ export default function PolybotInterface() {
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              {contextMessages.map((message) => (
+              {messages.map((message) => (
                 <div key={message.id} className="flex gap-3 group">
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     {message.sender === 'BOT' ? (
@@ -146,19 +155,19 @@ export default function PolybotInterface() {
                     <div className="text-sm font-medium">
                       {message.sender === 'BOT' ? 'PolyBot' : 'You'}
                     </div>
-                    <div className="text-lg">
+                    <div className="text-base">
                       {message.sender === 'BOT' ? (
                         message.content ? (
                           <div className="chat-message">
                             <MarkdownRenderer content={message.content} />
                           </div>
                         ) : (
-                          <div className="flex items-center">
-                            <span className="typing-indicator">
+                          <div className="flex h-full items-center justify-center">
+                            <div className="typing-indicator">
                               <span></span>
                               <span></span>
                               <span></span>
-                            </span>
+                            </div>
                           </div>
                         )
                       ) : (
