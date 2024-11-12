@@ -9,31 +9,29 @@ code {
   background-color: #27272a;
   padding: 2px 4px;
   border-radius: 4px;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 0.95em;
-  color: #e4e4e7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9em;
 }
 
 /* Code blocks */
 pre {
   background-color: #27272a;
-  padding: 16px;
   border-radius: 8px;
   overflow: auto;
-  font-family: "Courier New", Courier, monospace;
+  margin: 0.5em 0;
 }
 
 /* Tables */
 table {
-  margin-bottom: 16px;
   border-collapse: collapse;
   width: 100%;
+  margin: 0.5em 0;
 }
 
 th,
 td {
   border: 1px solid #3f3f46;
-  padding: 8px;
+  padding: 0.5rem;
 }
 
 th {
@@ -43,13 +41,13 @@ th {
 /* Lists */
 ul, ol {
   padding-left: 1.5em;
-  margin-bottom: 1em;
+  margin: 0.5em 0;
 }
 
 /* Blockquotes */
 blockquote {
   border-left: 4px solid #3f3f46;
-  margin: 0;
+  margin: 0.5em 0;
   padding-left: 1em;
   color: #a1a1aa;
 }

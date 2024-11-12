@@ -1,10 +1,9 @@
-//officialPolyBot/app/dashboard/_components/polybot-interface.tsx
 'use client'
 
 import * as React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useConversation } from '@/contexts/ConversationContext'
-import { Bot, Send, Paperclip, Loader2, ClipboardCopy } from "lucide-react"
+import { Bot, Send, Paperclip, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -24,7 +23,6 @@ export default function PolybotInterface() {
     loadMessages
   } = useConversation();
 
-  // Local messages state
   const [messages, setMessages] = useState<Message[]>(contextMessages);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -32,13 +30,11 @@ export default function PolybotInterface() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isConversationLoading, setIsConversationLoading] = useState(false);
 
-  // Handle initial scroll when messages are loaded
   useEffect(() => {
     if (!isConversationLoading && messages.length > 0) {
-      // Small delay to allow for initial markdown rendering
       const timeoutId = setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({
-          behavior: "auto", // Use auto instead of smooth for initial scroll
+          behavior: "auto",
           block: "end",
         });
       }, 100);
@@ -47,14 +43,12 @@ export default function PolybotInterface() {
     }
   }, [isConversationLoading, messages]);
 
-  // Update the ResizeObserver effect to be more robust
   useEffect(() => {
     if (!messagesContainerRef.current) return;
 
     const observer = new ResizeObserver((entries) => {
-      if (isConversationLoading) return; // Don't auto-scroll during loading
+      if (isConversationLoading) return;
       
-      // Use requestAnimationFrame to ensure DOM updates are complete
       requestAnimationFrame(() => {
         messagesEndRef.current?.scrollIntoView({ 
           behavior: "smooth",
@@ -68,7 +62,6 @@ export default function PolybotInterface() {
     return () => observer.disconnect();
   }, [isConversationLoading]);
 
-  // Sync local messages with contextMessages
   useEffect(() => {
     setMessages(contextMessages);
   }, [contextMessages]);
@@ -106,7 +99,6 @@ export default function PolybotInterface() {
         conversationId = newConversation.id;
       }
 
-      // Immediately add user message and placeholder bot message
       const newUserMessage: Message = { id: Date.now().toString(), sender: 'USER', content: userMessage };
       const placeholderBotMessage: Message = { id: (Date.now() + 1).toString(), sender: 'BOT', content: '' };
       setMessages(prevMessages => [...prevMessages, newUserMessage, placeholderBotMessage]);
@@ -123,16 +115,14 @@ export default function PolybotInterface() {
       if (!response.ok) throw new Error('Failed to send message');
       
       const data = await response.json();
-      const botResponse = data.message; // Adjust this based on your API response structure
+      const botResponse = data.message;
 
-      // Update the placeholder with the actual bot response
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === placeholderBotMessage.id ? { ...msg, content: botResponse } : msg
         )
       );
 
-      // Load messages from the conversation
       await loadMessages(conversationId);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -154,14 +144,14 @@ export default function PolybotInterface() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Conversation Title - add flex-shrink-0 */}
-      <div className="p-4 flex-shrink-0 border-b">
+      {/* Conversation Title - removed border-b */}
+      <div className="p-4 flex-shrink-0">
         <h2 className="text-lg font-semibold">
           {currentConversation?.title || 'New Conversation'}
         </h2>
       </div>
 
-      {/* Messages Container - update classes */}
+      {/* Messages Container */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           {isConversationLoading ? (
@@ -207,7 +197,6 @@ export default function PolybotInterface() {
                             <MarkdownRenderer content={message.content} />
                           </div>
                         ) : (     
-                          // Typing indicator when bot content is empty
                           <div className="flex items-center">
                             <div className="typing-indicator">
                               <span></span>
@@ -229,8 +218,8 @@ export default function PolybotInterface() {
         </div>
       </div>
 
-      {/* Input Area - update classes */}
-      <div className="flex-shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Input Area - removed border-t */}
+      <div className="flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
           <form onSubmit={handleSendMessage} className="relative">
             <Textarea
