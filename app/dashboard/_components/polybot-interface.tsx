@@ -168,10 +168,10 @@ export default function PolybotInterface() {
                     <div className="text-base">
                       {message.sender === 'BOT' ? (
                         message.content ? (
-                          <div className="chat-message">
+                          <div className="text-sm whitespace-pre-wrap">
                             <MarkdownRenderer content={message.content} />
                           </div>
-                        ) : (
+                        ) : (     
                           // Typing indicator when bot content is empty
                           <div className="flex items-center">
                             <div className="typing-indicator">
