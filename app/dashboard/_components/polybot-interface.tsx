@@ -32,13 +32,30 @@ export default function PolybotInterface() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isConversationLoading, setIsConversationLoading] = useState(false);
 
-  // Set up ResizeObserver for smooth scrolling
+  // Handle initial scroll when messages are loaded
+  useEffect(() => {
+    if (!isConversationLoading && messages.length > 0) {
+      // Small delay to allow for initial markdown rendering
+      const timeoutId = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({
+          behavior: "auto", // Use auto instead of smooth for initial scroll
+          block: "end",
+        });
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isConversationLoading, messages]);
+
+  // Update ResizeObserver to handle dynamic content changes
   useEffect(() => {
     const observer = new ResizeObserver(() => {
-      messagesEndRef.current?.scrollIntoView({ 
-        behavior: "smooth",
-        block: "end",
-      });
+      if (!isConversationLoading) { // Only auto-scroll if not loading
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: "smooth",
+          block: "end",
+        });
+      }
     });
 
     if (messagesContainerRef.current) {
@@ -50,7 +67,7 @@ export default function PolybotInterface() {
         observer.unobserve(messagesContainerRef.current);
       }
     };
-  }, []);
+  }, [isConversationLoading]);
 
   // Sync local messages with contextMessages
   useEffect(() => {
@@ -251,7 +268,6 @@ export default function PolybotInterface() {
           </div>
         </form>
       </div>
-      <div ref={messagesEndRef} />
     </div>
   );
 }
