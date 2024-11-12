@@ -16,6 +16,7 @@ code {
 
 /* Code blocks */
 pre {
+  background-color: #27272a;
   padding: 16px;
   border-radius: 8px;
   overflow: auto;
