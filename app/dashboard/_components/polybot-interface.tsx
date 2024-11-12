@@ -3,21 +3,11 @@
 import * as React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useConversation } from '@/contexts/ConversationContext'
-import { Bot, ClipboardCopy, Send, Paperclip, Loader2 } from "lucide-react"
+import { Bot, Send, Paperclip, Loader2, ClipboardCopy } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import rehypeHighlight from 'rehype-highlight'
-import 'highlight.js/styles/github-dark.css'
-
-interface CodeProps extends React.ClassAttributes<HTMLElement>, 
-  React.HTMLAttributes<HTMLElement> {
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
-}
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer'
 
 interface Message {
   id: string;
@@ -33,10 +23,12 @@ export default function PolybotInterface() {
     loadMessages
   } = useConversation();
 
+  // Local messages state
   const [messages, setMessages] = useState<Message[]>(contextMessages);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isConversationLoading, setIsConversationLoading] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -44,9 +36,27 @@ export default function PolybotInterface() {
 
   useEffect(scrollToBottom, [messages]);
 
+  // Sync local messages with contextMessages
   useEffect(() => {
     setMessages(contextMessages);
   }, [contextMessages]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (currentConversation) {
+        setIsConversationLoading(true);
+        try {
+          await loadMessages(currentConversation.id);
+        } catch (error) {
+          console.error('Error loading messages:', error);
+        } finally {
+          setIsConversationLoading(false);
+        }
+      }
+    };
+
+    fetchMessages();
+  }, [currentConversation]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +74,7 @@ export default function PolybotInterface() {
         conversationId = newConversation.id;
       }
 
-      // Immediately add the user's message and a placeholder for the AI's response
+      // Immediately add user message and placeholder bot message
       const newUserMessage: Message = { id: Date.now().toString(), sender: 'USER', content: userMessage };
       const placeholderBotMessage: Message = { id: (Date.now() + 1).toString(), sender: 'BOT', content: '' };
       setMessages(prevMessages => [...prevMessages, newUserMessage, placeholderBotMessage]);
@@ -90,6 +100,7 @@ export default function PolybotInterface() {
         )
       );
 
+      // Load messages from the conversation
       await loadMessages(conversationId);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -99,14 +110,20 @@ export default function PolybotInterface() {
   };
 
   const handleAttachment = () => {
-    // Implement attachment functionality here
     console.log('Attachment button clicked');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
   };
 
   return (
     <div className="flex flex-col h-full">
       {/* Conversation Title */}
-      <div className="p-4 border-b">
+      <div className="p-4">
         <h2 className="text-lg font-semibold">
           {currentConversation?.title || 'New Conversation'}
         </h2>
@@ -114,15 +131,26 @@ export default function PolybotInterface() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          {messages.length === 0 ? (
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          {isConversationLoading ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               Start a conversation...
             </div>
           ) : (
             <div className="space-y-4 py-4">
               {messages.map((message) => (
-                <div key={message.id} className="flex gap-3 group">
+                <div
+                  key={message.id}
+                  className="flex gap-3 group"
+                >
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     {message.sender === 'BOT' ? (
                       <div className="bg-purple-500 h-full w-full flex items-center justify-center">
@@ -140,40 +168,25 @@ export default function PolybotInterface() {
                     <div className="text-base">
                       {message.sender === 'BOT' ? (
                         message.content ? (
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            rehypePlugins={[rehypeHighlight]}
-                            components={{
-                              code({ inline, className, children, ...props }: CodeProps) {
-                                return (
-                                  <code
-                                    className={`${className} ${
-                                      inline ? 'inline-code' : 'block-code'
-                                    }`}
-                                    {...props}
-                                  >
-                                    {children}
-                                  </code>
-                                );
-                              },
-                            }}
-                          >
-                            {message.content}
-                          </ReactMarkdown>
+                          <div className="chat-message">
+                            <MarkdownRenderer content={message.content} />
+                          </div>
                         ) : (
+                          // Typing indicator when bot content is empty
                           <div className="flex items-center">
-                            <span className="typing-indicator">
+                            <div className="typing-indicator">
                               <span></span>
                               <span></span>
                               <span></span>
-                            </span>
+                            </div>
                           </div>
                         )
                       ) : (
-                        message.content
+                        <div className="chat-message text-sm whitespace-pre-wrap">{message.content}</div>
                       )}
                     </div>
                   </div>
+                  {/* Clipboard Copy Button */}
                   <div className="flex items-center">
                     {message.sender === 'BOT' && message.content && (
                       <Button 
@@ -194,43 +207,45 @@ export default function PolybotInterface() {
         </div>
       </div>
 
-      {/* Input */}
-      <div className="border-t">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <form onSubmit={handleSendMessage} className="relative">
-            <Textarea
-              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[40px]"
-              rows={1}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              disabled={isLoading}
-              placeholder="Type your message..."
-            />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8"
-                onClick={handleAttachment}
-                disabled={isLoading}
-              >
-                <Paperclip size={16} />
-                <span className="sr-only">Attach file</span>
-              </Button>
-              <Button
-                type="submit"
-                size="icon"
-                className="h-8 w-8"
-                disabled={!inputMessage.trim() || isLoading}
-              >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
-                <span className="sr-only">Send message</span>
-              </Button>
-            </div>
-          </form>
-        </div>
+      {/* Input Area */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
+        <form onSubmit={handleSendMessage} className="relative">
+          <Textarea
+            className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full"
+            rows={4}
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isLoading || isConversationLoading}
+            placeholder={isLoading || isConversationLoading ? "PolyBot is thinking..." : "Type your message..."}
+          />
+          <div className="absolute left-2 bottom-2 flex items-center gap-2">
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              onClick={handleAttachment}
+              disabled={isLoading || isConversationLoading}
+            >
+              <Paperclip size={16} />
+              <span className="sr-only">Attach file</span>
+            </Button>
+          </div>
+          <div className="absolute right-2 bottom-2 flex items-center">
+            <Button
+              type="submit"
+              size="icon"
+              className="h-8 w-8"
+              disabled={!inputMessage.trim() || isLoading || isConversationLoading}
+            >
+              {isLoading || isConversationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
+              <span className="sr-only">Send message</span>
+            </Button>
+          </div>
+        </form>
       </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 }
