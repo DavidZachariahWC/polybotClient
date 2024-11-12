@@ -1,3 +1,4 @@
+//app/dashboard/_components/polybot-interface.tsx
 'use client'
 
 import * as React from "react"
@@ -7,17 +8,7 @@ import { Bot, ClipboardCopy, Send, Paperclip, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import rehypeHighlight from 'rehype-highlight'
-import 'highlight.js/styles/github-dark.css'
-import rehypeRaw from 'rehype-raw'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import emoji from 'remark-emoji'
-import remarkMath from 'remark-math'
-import rehypeKatex from 'rehype-katex'
-import 'katex/dist/katex.min.css'
+import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer'
 
 interface CodeProps {
   node?: any;
@@ -159,73 +150,7 @@ export default function PolybotInterface() {
                       {message.sender === 'BOT' ? (
                         message.content ? (
                           <div className="chat-message">
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm, emoji, remarkMath]}
-                              rehypePlugins={[rehypeHighlight, rehypeKatex]}
-                              className="prose prose-invert max-w-none"
-                              components={{
-                                code(props: CodeProps) {
-                                  const { inline, className, children, ...rest } = props;
-                                  const match = /language-(\w+)/.exec(className || '');
-                                  return inline ? (
-                                    <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200" {...rest}>
-                                      {children}
-                                    </code>
-                                  ) : (
-                                    <div className="relative">
-                                      {match && (
-                                        <div className="absolute right-2 top-2 text-xs text-zinc-400">
-                                          {match[1]}
-                                        </div>
-                                      )}
-                                      <pre className="!bg-zinc-800 !p-4 rounded-lg overflow-x-auto">
-                                        <code className={className} {...rest}>
-                                          {children}
-                                        </code>
-                                      </pre>
-                                    </div>
-                                  );
-                                },
-                                p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
-                                ul: ({ children }) => <ul className="list-disc pl-4 mb-4">{children}</ul>,
-                                ol: ({ children }) => <ol className="list-decimal pl-4 mb-4">{children}</ol>,
-                                li: ({ children }) => <li className="mb-1">{children}</li>,
-                                blockquote: ({ children }) => (
-                                  <blockquote className="border-l-4 border-zinc-700 pl-4 italic my-4">
-                                    {children}
-                                  </blockquote>
-                                ),
-                                a: ({ children, href }) => (
-                                  <a 
-                                    href={href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-400 hover:underline"
-                                  >
-                                    {children}
-                                  </a>
-                                ),
-                                table: ({ children }) => (
-                                  <div className="overflow-x-auto my-4">
-                                    <table className="min-w-full divide-y divide-zinc-700">
-                                      {children}
-                                    </table>
-                                  </div>
-                                ),
-                                th: ({ children }) => (
-                                  <th className="px-4 py-2 bg-zinc-800 text-left font-semibold">
-                                    {children}
-                                  </th>
-                                ),
-                                td: ({ children }) => (
-                                  <td className="px-4 py-2 border-t border-zinc-700">
-                                    {children}
-                                  </td>
-                                ),
-                              }}
-                            >
-                              {message.content}
-                            </ReactMarkdown>
+                            <MarkdownRenderer content={message.content} />
                           </div>
                         ) : (
                           <div className="flex items-center">
