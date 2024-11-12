@@ -154,7 +154,7 @@ export default function PolybotInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Conversation Title */}
       <div className="p-4">
         <h2 className="text-lg font-semibold">
@@ -163,7 +163,7 @@ export default function PolybotInterface() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto min-h-0">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {isConversationLoading ? (
             <div className="flex h-full items-center justify-center">
@@ -231,7 +231,7 @@ export default function PolybotInterface() {
       </div>
 
       {/* Input Area */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full flex-shrink-0">
         <form onSubmit={handleSendMessage} className="relative">
           <Textarea
             className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full"
