@@ -3,11 +3,17 @@
 import * as React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useConversation } from '@/contexts/ConversationContext'
-import { Bot, Send, Paperclip, Loader2 } from "lucide-react"
+import { Bot, Send, Paperclip, Loader2, ChevronDown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import MarkdownRenderer from '@/components/MarkdownRenderer/MarkdownRenderer'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface Message {
   id: string;
@@ -144,11 +150,21 @@ export default function PolybotInterface() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Conversation Title - removed border-b */}
+      {/* Polybot Quickchat Dropdown */}
       <div className="p-4 flex-shrink-0">
-        <h2 className="text-lg font-semibold">
-          {currentConversation?.title || 'New Conversation'}
-        </h2>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              Polybot Quickchat
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuItem>Model 1</DropdownMenuItem>
+            <DropdownMenuItem>Model 2</DropdownMenuItem>
+            <DropdownMenuItem>Model 3</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Messages Container */}
@@ -218,7 +234,7 @@ export default function PolybotInterface() {
         </div>
       </div>
 
-      {/* Input Area - removed border-t */}
+      {/* Input Area */}
       <div className="flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
           <form onSubmit={handleSendMessage} className="relative">

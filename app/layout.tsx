@@ -2,10 +2,16 @@ import Provider from '@/app/provider'
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { Analytics } from "@vercel/analytics/react"
-import { GeistSans } from 'geist/font/sans'
 import type { Metadata } from 'next'
 import './globals.css'
 import { ClerkProvider } from '@clerk/nextjs'
+import { IBM_Plex_Sans } from 'next/font/google'
+
+const ibmPlexSans = IBM_Plex_Sans({
+  weight: ['400', '500', '600', '700'],  // Add the weights you need
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://starter.rasmic.xyz"),
@@ -50,7 +56,7 @@ export default function RootLayout({
             as="image"
           />
         </head>
-        <body className={GeistSans.className}>
+        <body className={ibmPlexSans.className}>
           <Provider>
             <ThemeProvider
               attribute="class"

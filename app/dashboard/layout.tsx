@@ -15,14 +15,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
   return (
     <ConversationProvider>
-      <div className="flex flex-col h-screen w-full overflow-hidden">
-        <DashboardTopNav />
-        <div className="flex flex-1 overflow-hidden">
-          <PolybotSidebar />
-          <main className="flex-1 overflow-hidden relative">
-            {children}
-          </main>
-        </div>
+      <div className="flex h-screen w-full overflow-hidden">
+        <PolybotSidebar />
+        <main className="flex-1 overflow-hidden relative">
+          {children}
+        </main>
       </div>
     </ConversationProvider>
   )

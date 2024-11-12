@@ -2,11 +2,14 @@
 
 import * as React from "react"
 import { useState } from "react"
-import { Plus, Bot, X, Edit2, Check } from "lucide-react"
+import { Plus, Bot, X, Edit2, Check } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { useConversation } from '@/contexts/ConversationContext'
+import ModeToggle from '@/components/mode-toggle'
+import { UserProfile } from '@/components/user-profile'
+import config from '@/config'
 
 export default function PolybotSidebar() {
   const {
@@ -125,6 +128,10 @@ export default function PolybotSidebar() {
           ))}
         </div>
       </ScrollArea>
+      <div className="p-2 border-t flex justify-between items-center">
+        <ModeToggle />
+        {config?.auth?.enabled && <UserProfile />}
+      </div>
     </div>
   );
 }
