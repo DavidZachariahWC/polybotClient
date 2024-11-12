@@ -47,26 +47,25 @@ export default function PolybotInterface() {
     }
   }, [isConversationLoading, messages]);
 
-  // Update ResizeObserver to handle dynamic content changes
+  // Update the ResizeObserver effect to be more robust
   useEffect(() => {
-    const observer = new ResizeObserver(() => {
-      if (!isConversationLoading) { // Only auto-scroll if not loading
+    if (!messagesContainerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      if (isConversationLoading) return; // Don't auto-scroll during loading
+      
+      // Use requestAnimationFrame to ensure DOM updates are complete
+      requestAnimationFrame(() => {
         messagesEndRef.current?.scrollIntoView({ 
           behavior: "smooth",
           block: "end",
         });
-      }
+      });
     });
 
-    if (messagesContainerRef.current) {
-      observer.observe(messagesContainerRef.current);
-    }
+    observer.observe(messagesContainerRef.current);
 
-    return () => {
-      if (messagesContainerRef.current) {
-        observer.unobserve(messagesContainerRef.current);
-      }
-    };
+    return () => observer.disconnect();
   }, [isConversationLoading]);
 
   // Sync local messages with contextMessages
@@ -155,16 +154,16 @@ export default function PolybotInterface() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Conversation Title */}
-      <div className="p-4">
+      {/* Conversation Title - add flex-shrink-0 */}
+      <div className="p-4 flex-shrink-0 border-b">
         <h2 className="text-lg font-semibold">
           {currentConversation?.title || 'New Conversation'}
         </h2>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Messages Container - update classes */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           {isConversationLoading ? (
             <div className="flex h-full items-center justify-center">
               <div className="typing-indicator">
@@ -179,7 +178,7 @@ export default function PolybotInterface() {
             </div>
           ) : (
             <div 
-              className="space-y-4 py-4"
+              className="space-y-4 py-4 relative"
               ref={messagesContainerRef}
             >
               {messages.map((message) => (
@@ -224,49 +223,51 @@ export default function PolybotInterface() {
                   </div>
                 </div>
               ))}
-              <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} className="h-px" />
             </div>
           )}
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full flex-shrink-0">
-        <form onSubmit={handleSendMessage} className="relative">
-          <Textarea
-            className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full"
-            rows={4}
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isLoading || isConversationLoading}
-            placeholder={isLoading || isConversationLoading ? "PolyBot is thinking..." : "Type your message..."}
-          />
-          <div className="absolute left-2 bottom-2 flex items-center gap-2">
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8"
-              onClick={handleAttachment}
+      {/* Input Area - update classes */}
+      <div className="flex-shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
+          <form onSubmit={handleSendMessage} className="relative">
+            <Textarea
+              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full"
+              rows={4}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
               disabled={isLoading || isConversationLoading}
-            >
-              <Paperclip size={16} />
-              <span className="sr-only">Attach file</span>
-            </Button>
-          </div>
-          <div className="absolute right-2 bottom-2 flex items-center">
-            <Button
-              type="submit"
-              size="icon"
-              className="h-8 w-8"
-              disabled={!inputMessage.trim() || isLoading || isConversationLoading}
-            >
-              {isLoading || isConversationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
-              <span className="sr-only">Send message</span>
-            </Button>
-          </div>
-        </form>
+              placeholder={isLoading || isConversationLoading ? "PolyBot is thinking..." : "Type your message..."}
+            />
+            <div className="absolute left-2 bottom-2 flex items-center gap-2">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                onClick={handleAttachment}
+                disabled={isLoading || isConversationLoading}
+              >
+                <Paperclip size={16} />
+                <span className="sr-only">Attach file</span>
+              </Button>
+            </div>
+            <div className="absolute right-2 bottom-2 flex items-center">
+              <Button
+                type="submit"
+                size="icon"
+                className="h-8 w-8"
+                disabled={!inputMessage.trim() || isLoading || isConversationLoading}
+              >
+                {isLoading || isConversationLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send size={16} />}
+                <span className="sr-only">Send message</span>
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

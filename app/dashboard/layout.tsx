@@ -1,3 +1,5 @@
+//officialPolyBot/app/dashboard/layout.tsx
+
 import { ReactNode } from "react"
 import PolybotSidebar from "./_components/polybot-sidebar"
 import DashboardTopNav from "./_components/dashbord-top-nav"
@@ -13,11 +15,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
   return (
     <ConversationProvider>
-      <div className="flex flex-col h-screen w-full">
+      <div className="flex flex-col h-screen w-full overflow-hidden">
         <DashboardTopNav />
         <div className="flex flex-1 overflow-hidden">
           <PolybotSidebar />
-          <main className="flex-1 overflow-hidden">
+          <main className="flex-1 overflow-hidden relative">
             {children}
           </main>
         </div>
