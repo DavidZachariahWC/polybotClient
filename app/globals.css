@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-
+/* Root Variables */
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 97%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -30,11 +30,12 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --sidebar-background: 0 0% 100%;
 
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 235 13% 23%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -58,11 +59,10 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --sidebar-background: 220 3% 13%;
 
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -71,9 +71,9 @@
   }
 }
 
-/* Add these styles at the end of the file */
+/* Markdown Styles */
 .markdown-content {
-  @apply text-sm leading-relaxed;
+  @apply text-base leading-relaxed;
 }
 
 .markdown-content > * + * {
@@ -149,41 +149,9 @@
   @apply overflow-x-auto py-4;
 }
 
-/* Add these styles for the typing indicator */
-.typing-indicator {
-  display: flex;
-  align-items: center;
-}
-
-.typing-indicator span {
-  height: 8px;
-  width: 8px;
-  background-color: #9880ff;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 4px;
-  animation: bounce 1.4s infinite ease-in-out;
-}
-
-.typing-indicator span:nth-child(1) {
-  animation-delay: -0.32s;
-}
-
-.typing-indicator span:nth-child(2) {
-  animation-delay: -0.16s;
-}
-
-@keyframes bounce {
-  0%, 80%, 100% { 
-    transform: scale(0);
-  } 40% { 
-    transform: scale(1.0);
-  }
-}
-
-/* Add or update markdown styles */
+/* Chat Message Styles */
 .chat-message {
-  @apply text-sm leading-relaxed;
+  @apply text-base leading-relaxed;
 }
 
 .chat-message pre {
@@ -253,4 +221,36 @@
 
 .chat-message a {
   @apply text-blue-400 hover:underline;
+}
+
+/* Typing Indicator - Remove duplicate and keep one version */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background-color: #a855f7;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { 
+    transform: scale(0);
+  } 
+  40% { 
+    transform: scale(1.0);
+  }
 }

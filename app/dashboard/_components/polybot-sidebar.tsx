@@ -62,8 +62,8 @@ export default function PolybotSidebar() {
   };
 
   return (
-    <div className="w-64 border-r flex flex-col h-full">
-      <div className="p-2">
+    <div className="w-64 border-r flex flex-col h-full bg-[hsl(var(--sidebar-background))]">
+      <div className="p-4">
         <Button 
           className="w-full justify-start gap-2 rounded-lg"
           variant="outline"
@@ -128,7 +128,7 @@ export default function PolybotSidebar() {
           ))}
         </div>
       </ScrollArea>
-      <div className="p-2 border-t flex justify-between items-center">
+      <div className="p-2 flex justify-between items-center">
         <ModeToggle />
         {config?.auth?.enabled && <UserProfile />}
       </div>

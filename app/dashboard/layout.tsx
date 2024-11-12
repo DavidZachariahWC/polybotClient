@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
   return (
     <ConversationProvider>
-      <div className="flex h-screen w-full overflow-hidden">
+      <div className="flex h-screen w-full overflow-hidden bg-[hsl(var(--background))]">
         <PolybotSidebar />
         <main className="flex-1 overflow-hidden relative">
           {children}

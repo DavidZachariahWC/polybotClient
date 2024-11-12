@@ -149,17 +149,17 @@ export default function PolybotInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden pt-2">
       {/* Polybot Quickchat Dropdown */}
-      <div className="p-4 flex-shrink-0">
+      <div className="p-2 flex-shrink-0">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
+            <Button variant="ghost" className="w-full justify-between">
               Polybot Quickchat
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
+          <DropdownMenuContent className="w-56" align="start">
             <DropdownMenuItem>Model 1</DropdownMenuItem>
             <DropdownMenuItem>Model 2</DropdownMenuItem>
             <DropdownMenuItem>Model 3</DropdownMenuItem>
