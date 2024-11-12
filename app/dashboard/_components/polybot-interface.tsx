@@ -151,20 +151,43 @@ export default function PolybotInterface() {
   return (
     <div className="flex flex-col h-full overflow-hidden pt-2">
       {/* Polybot Quickchat Dropdown */}
-      <div className="p-2 flex-shrink-0">
+      <div className="p-2 flex-shrink-0 flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full text-base">
+            <Button variant="ghost" className="text-base">
               <div className="flex items-center">
                 Polybot Quickchat
                 <ChevronDown className="ml-2 h-4 w-4" />
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-[#2F2F2F] border-none" align="start">
-            <DropdownMenuItem>Model 1</DropdownMenuItem>
-            <DropdownMenuItem>Model 2</DropdownMenuItem>
-            <DropdownMenuItem>Model 3</DropdownMenuItem>
+          <DropdownMenuContent 
+            className="w-[400px] bg-[#2F2F2F] border-none p-4" 
+            align="center"
+          >
+            <div className="text-xs text-muted-foreground mb-2 px-2">
+              model
+            </div>
+            <div className="space-y-2">
+              <DropdownMenuItem className="flex justify-between items-start p-3 cursor-pointer">
+                <div>
+                  <div className="font-medium">GPT-4</div>
+                  <div className="text-sm text-muted-foreground">Most capable model for complex tasks</div>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex justify-between items-start p-3 cursor-pointer">
+                <div>
+                  <div className="font-medium">Claude 3</div>
+                  <div className="text-sm text-muted-foreground">Advanced reasoning and coding capabilities</div>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex justify-between items-start p-3 cursor-pointer">
+                <div>
+                  <div className="font-medium">GPT-3.5</div>
+                  <div className="text-sm text-muted-foreground">Fast and efficient for simpler tasks</div>
+                </div>
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -196,7 +219,7 @@ export default function PolybotInterface() {
                 >
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     {message.sender === 'BOT' ? (
-                      <div className="bg-purple-500 h-full w-full flex items-center justify-center">
+                      <div className="bg-[#8039d0] h-full w-full flex items-center justify-center">
                         <Bot size={16} className="text-white" />
                       </div>
                     ) : (
@@ -241,7 +264,7 @@ export default function PolybotInterface() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
           <form onSubmit={handleSendMessage} className="relative">
             <Textarea
-              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full bg-[#2F2F2F] border-none focus-visible:ring-1 focus-visible:ring-purple-500/50"
+              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full bg-[#2F2F2F] border-none focus-visible:ring-1 focus-visible:ring-[#8039d0]/50"
               rows={4}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
