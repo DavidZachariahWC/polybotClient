@@ -264,7 +264,7 @@ export default function PolybotInterface() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
           <form onSubmit={handleSendMessage} className="relative">
             <Textarea
-              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full bg-[#2F2F2F] border-none focus-visible:ring-1 focus-visible:ring-[#8039d0]/50"
+              className="resize-none rounded-xl py-3 px-4 pr-20 min-h-[100px] w-full dark:bg-[#2F2F2F] bg-[#F0F0F0] border-none focus-visible:ring-1 focus-visible:ring-[#8039d0]/50"
               rows={4}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}

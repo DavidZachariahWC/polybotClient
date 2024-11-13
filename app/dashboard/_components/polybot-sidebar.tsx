@@ -65,7 +65,7 @@ export default function PolybotSidebar() {
     <div className="w-64 border-r flex flex-col h-full bg-[hsl(var(--sidebar-background))]">
       <div className="p-4">
         <Button 
-          className="w-full justify-start gap-2 rounded-lg bg-[#8039d0]/20 hover:bg-secondary"
+          className="w-full justify-start gap-2 rounded-lg pr-12 bg-[#8039d0]/20 hover:bg-secondary"
           variant="ghost"
           onClick={handleNewChat}
         >
