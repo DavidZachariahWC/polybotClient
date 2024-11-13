@@ -8,7 +8,6 @@ interface AuthPageProps {
 }
 
 export function AuthPage({ mode }: AuthPageProps) {
-  const title = mode === 'sign-in' ? 'Sign in to Polybot' : 'Sign up for Polybot'
   const ClerkComponent = mode === 'sign-in' ? SignIn : SignUp
 
   return (
@@ -30,49 +29,44 @@ export function AuthPage({ mode }: AuthPageProps) {
       </div>
 
       {/* Right side - Auth */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 lg:p-8">
-        <div className="w-full max-w-3xl space-y-8">
-          {/* Mobile logo */}
-          <div className="lg:hidden flex justify-center mb-8">
-            <div className="flex items-center gap-2">
-              <Bot className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-semibold text-primary">Polybot</span>
-            </div>
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center">
+        {/* Mobile logo */}
+        <div className="lg:hidden flex justify-center mb-8">
+          <div className="flex items-center gap-2">
+            <Bot className="w-8 h-8 text-primary" />
+            <span className="text-2xl font-semibold text-primary">Polybot</span>
           </div>
-
-          {/* Clerk Auth Component */}
-          <div className="bg-card rounded-lg p-4 lg:p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-4 text-center">{title}</h2>
-            <ClerkComponent
-              appearance={{
-                elements: {
-                  rootBox: "w-full",
-                  card: "shadow-none p-0",
-                  header: "hidden",
-                  footer: "hidden"
-                }
-              }}
-              signUpUrl="/sign-up"
-              signInUrl="/sign-in"
-              redirectUrl="/dashboard"
-              afterSignInUrl="/dashboard"
-              afterSignUpUrl="/dashboard"
-            />
-          </div>
-
-          {/* Footer Text */}
-          <p className="text-center text-sm text-muted-foreground">
-            By continuing, you agree to our{' '}
-            <a href="/terms" className="underline hover:text-foreground">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="/privacy" className="underline hover:text-foreground">
-              Privacy Policy
-            </a>
-            .
-          </p>
         </div>
+
+        {/* Clerk Auth Component */}
+        <ClerkComponent
+          appearance={{
+            elements: {
+              rootBox: "w-full",
+              card: "shadow-none p-0",
+              header: "hidden",
+              footer: "hidden"
+            }
+          }}
+          signUpUrl="/sign-up"
+          signInUrl="/sign-in"
+          redirectUrl="/dashboard"
+          afterSignInUrl="/dashboard"
+          afterSignUpUrl="/dashboard"
+        />
+
+        {/* Footer Text */}
+        <p className="text-center text-sm text-muted-foreground mt-8 px-4">
+          By continuing, you agree to our{' '}
+          <a href="/terms" className="underline hover:text-foreground">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="/privacy" className="underline hover:text-foreground">
+            Privacy Policy
+          </a>
+          .
+        </p>
       </div>
     </div>
   )
