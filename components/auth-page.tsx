@@ -19,12 +19,12 @@ export function AuthPage({ mode }: AuthPageProps) {
           <span className="text-4xl font-bold text-primary">Polybot</span>
         </div>
         <h1 className="text-5xl font-serif text-center mb-4">
-          Your conversations,
+          One conversation,
           <br />
-          supercharged
+          all the models
         </h1>
         <p className="text-xl text-center text-muted-foreground max-w-md">
-          AI-powered chat that adapts to your needs, harnessing multiple models for unparalleled accuracy.
+          this page should be a persuisive pitch for the chatbot.
         </p>
       </div>
 
