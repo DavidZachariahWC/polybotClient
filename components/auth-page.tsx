@@ -29,44 +29,40 @@ export function AuthPage({ mode }: AuthPageProps) {
       </div>
 
       {/* Right side - Auth */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center">
+      <div className="w-full lg:w-1/2 flex flex-col items-center">
         {/* Mobile logo */}
-        <div className="lg:hidden flex justify-center mb-8">
+        <div className="lg:hidden flex justify-center mt-8">
           <div className="flex items-center gap-2">
             <Bot className="w-8 h-8 text-primary" />
             <span className="text-2xl font-semibold text-primary">Polybot</span>
           </div>
         </div>
 
-        {/* Clerk Auth Component */}
-        <ClerkComponent
-          appearance={{
-            elements: {
-              rootBox: "w-full",
-              card: "shadow-none p-0",
-              header: "hidden",
-              footer: "hidden"
-            }
-          }}
-          signUpUrl="/sign-up"
-          signInUrl="/sign-in"
-          redirectUrl="/dashboard"
-          afterSignInUrl="/dashboard"
-          afterSignUpUrl="/dashboard"
-        />
+        {/* Centered container for Clerk and footer */}
+        <div className="flex-1 flex flex-col items-center justify-center w-full">
+          <div className="flex min-w-screen justify-center my-[5rem]">
+            <ClerkComponent 
+              signUpUrl="/sign-up"
+              signInUrl="/sign-in"
+              redirectUrl="/dashboard"
+              afterSignInUrl="/dashboard"
+              afterSignUpUrl="/dashboard"
+            />
+          </div>
 
-        {/* Footer Text */}
-        <p className="text-center text-sm text-muted-foreground mt-8 px-4">
-          By continuing, you agree to our{' '}
-          <a href="/terms" className="underline hover:text-foreground">
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href="/privacy" className="underline hover:text-foreground">
-            Privacy Policy
-          </a>
-          .
-        </p>
+          {/* Footer Text */}
+          <p className="text-center text-sm text-muted-foreground mb-8 px-4">
+            By continuing, you agree to our{' '}
+            <a href="/terms" className="underline hover:text-foreground">
+              Terms of Service
+            </a>{' '}
+            and{' '}
+            <a href="/privacy" className="underline hover:text-foreground">
+              Privacy Policy
+            </a>
+            .
+          </p>
+        </div>
       </div>
     </div>
   )
