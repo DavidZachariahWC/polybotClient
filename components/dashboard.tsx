@@ -3,17 +3,41 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Bot, Calculator, PenTool } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useConversation } from "@/contexts/ConversationContext"
 
 export function DashboardComponent() {
+  const router = useRouter()
+  const { createNewConversation } = useConversation()
+
+  const handleQuickChat = async () => {
+    try {
+      await createNewConversation()
+      router.push('/dashboard/chat')
+    } catch (error) {
+      console.error('Error creating new chat:', error)
+    }
+  }
+
+  const handleSpecialistChat = async (type: 'math' | 'writing') => {
+    try {
+      await createNewConversation(undefined)
+      router.push('/dashboard/chat')
+    } catch (error) {
+      console.error(`Error creating new ${type} chat:`, error)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background p-8">
-      <main className="container mx-auto max-w-4xl">
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <main className="w-full max-w-4xl px-8">
         <div className="space-y-8">
           {/* QuickChat Button */}
-          <Card className="w-full overflow-hidden">
+          <Card className="w-full overflow-hidden max-w-2xl mx-auto">
             <Button 
-              className="w-full h-auto py-8 text-left flex items-center space-x-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              className="w-full h-auto py-8 text-left flex items-center space-x-6 bg-gradient-to-r from-purple-600 to-purple-900 hover:from-purple-700 hover:to-purple-950"
               variant="default"
+              onClick={handleQuickChat}
             >
               <div className="bg-white bg-opacity-20 p-3 rounded-full">
                 <Bot size={48} className="text-white" />
@@ -26,12 +50,13 @@ export function DashboardComponent() {
           </Card>
 
           {/* Specialist Buttons */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
             {/* Math Specialist */}
             <Card className="overflow-hidden">
               <Button 
-                className="w-full h-full py-6 text-left flex items-center space-x-4 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700"
+                className="w-full h-full py-6 text-left flex items-center space-x-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
                 variant="default"
+                onClick={() => handleSpecialistChat('math')}
               >
                 <div className="bg-white bg-opacity-20 p-2 rounded-full">
                   <Calculator size={36} className="text-white" />
@@ -46,8 +71,9 @@ export function DashboardComponent() {
             {/* Writing Specialist */}
             <Card className="overflow-hidden">
               <Button 
-                className="w-full h-full py-6 text-left flex items-center space-x-4 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700"
+                className="w-full h-full py-6 text-left flex items-center space-x-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
                 variant="default"
+                onClick={() => handleSpecialistChat('writing')}
               >
                 <div className="bg-white bg-opacity-20 p-2 rounded-full">
                   <PenTool size={36} className="text-white" />
