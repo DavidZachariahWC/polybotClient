@@ -1,7 +1,6 @@
 "use client"
-import PageWrapper from "@/components/wrapper/page-wrapper";
+import { AuthPage } from "@/components/auth-page";
 import config from "@/config";
-import { SignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
@@ -11,11 +10,5 @@ export default function SignInPage() {
         router.back()
     }
 
-    return (
-        <PageWrapper >
-            <div className="flex min-w-screen justify-center my-[5rem]">
-                <SignIn fallbackRedirectUrl="/" signUpFallbackRedirectUrl="/dashboard" />
-            </div>
-        </PageWrapper>
-    );
+    return <AuthPage mode="sign-in" />;
 }
