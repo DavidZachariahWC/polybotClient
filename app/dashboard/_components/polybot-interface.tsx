@@ -43,6 +43,14 @@ export default function PolybotInterface() {
           behavior: "auto",
           block: "end",
         });
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            messagesEndRef.current?.scrollIntoView({
+              behavior: "auto",
+              block: "end",
+            });
+          });
+        });
       }, 100);
 
       return () => clearTimeout(timeoutId);

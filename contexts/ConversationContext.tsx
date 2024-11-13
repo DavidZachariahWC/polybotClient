@@ -31,7 +31,10 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
       const response = await fetch('/api/conversations');
       if (!response.ok) throw new Error('Failed to fetch conversations');
       const data = await response.json();
-      setConversations(data);
+      const sortedData = data.sort((a: Conversation, b: Conversation) => {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
+      setConversations(sortedData);
     } catch (error) {
       console.error('Error fetching conversations:', error);
     }
